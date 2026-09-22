@@ -61,7 +61,7 @@
 
   function logisticsHTML() {
     var L = D.logistics || {};
-    return '<section id="logistics"><h2>搬運條件<span class="tag">影響人力與車次</span></h2>' +
+    return '<section id="logistics"><h2>搬運條件</h2>' +
       '<p class="sec-summary">以下為兩地的出入與搬運動線條件。</p>' +
       '<div class="logi-grid">' + placeHTML(L.from) + placeHTML(L.to) + "</div>" +
       (L.preferredDate ? '<p class="logi-date">希望搬遷日期：<strong>' + esc(L.preferredDate) + "</strong></p>" : "") +
