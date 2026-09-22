@@ -6,16 +6,17 @@
 ## 資料流
 
 ```
-content/site.yaml ──build.py──> data/data.js ──> index.html
-images/full/*.jpg ──tools/thumbs.py──> images/thumb/*.jpg
+content/site.yaml ──build.py──────> data/data.js ──> index.html
+images/src/*  ──tools/images.py──┬─> images/full/    長邊 3000px、q75
+                                 └─> images/thumb/   長邊 1000px、q78
 ```
 
-**你只需要編輯 `content/site.yaml` 與放照片到 `images/full/`。**
+**你只需要編輯 `content/site.yaml` 與把原始照片放到 `images/src/`。**
 
 ## 日常流程
 
 ```bash
-# 1. 把照片放進 images/full/，檔名格式：<房間id>-<類型>-<編號>.jpg
+# 1. 把原始照片放進 images/src/，檔名格式：<房間id>-<類型>-<編號>.jpg
 #    類型為 layout（大格局）或 detail（細節）；整體平面圖用 overview-plan-01.jpg
 # 2. 編輯 content/site.yaml 填文字與圖說
 # 3. 開發（改檔自動 build、瀏覽器自動更新）
@@ -41,7 +42,7 @@ python3 tools/dev.py --port 3000
 | --- | --- |
 | `assets/style.css` | 熱抽換樣式，不重整、不跳位 |
 | `content/site.yaml` | 跑 `build.py` → 重整（保留捲動位置） |
-| `images/full/*` | 跑 `thumbs.py`（增量）+ `build.py` → 重整 |
+| `images/src/*` | 跑 `images.py`（增量）+ `build.py` → 重整 |
 | `assets/app.js`、`index.html` | 重整 |
 
 build 失敗時錯誤會直接蓋在畫面上，修好即自動消失；server 重啟後瀏覽器會自己接回來。
@@ -69,16 +70,36 @@ build 失敗時錯誤會直接蓋在畫面上，修好即自動消失；server �
   每個房間自動分頁，照片兩欄排列
 - **全屋彙總**：件數、紙箱數、材積由各房間物品清單自動加總
 
+## 圖片處理
+
+原始檔放 `images/src/`，其餘兩個目錄由 `tools/images.py` 產生，不要手動改：
+
+| 目錄 | 內容 | 用途 |
+| --- | --- | --- |
+| `images/src/` | 你給的原始檔（不進 git） | 母檔，只留在你機器上 |
+| `images/full/` | 長邊 3000px、JPEG q75 | 點圖放大、列印 |
+| `images/thumb/` | 長邊 1000px、JPEG q78 | 網頁預設顯示 |
+
+每張圖都會：
+
+- **移除全部 EXIF，包含 GPS 定位**（連拍攝器材、時間都不會留下）
+- 依原始方向自動轉正，手機直拍不會躺著
+- 帶 ICC 色彩描述（iPhone 多為 Display P3）者先轉成 sRGB，避免拔掉描述檔後顏色跑掉
+- PNG 原始檔（平面圖等線稿）維持 PNG 輸出，其餘轉 JPEG
+
+`images.py` 是增量的：只處理新的或改過的檔案，原始檔刪掉時會一併清除對應輸出。
+要全部重做用 `python3 tools/images.py --force`。
+
+iPhone 的 `.HEIC` 目前不支援，請先轉成 JPEG（工具會列出被跳過的檔案）。
+
 ## 換成真實照片
 
 ```bash
-rm images/full/*.jpg images/thumb/*.jpg   # 清掉假圖
-rm tools/gen_placeholders.py              # 假圖產生器不再需要
-# 放入真實照片後
+rm images/src/*                  # 清掉假的原始檔
+rm tools/gen_placeholders.py     # 假圖產生器不再需要
+# 把真實照片放進 images/src/ 後
 ./build.sh
 ```
-
-手機直拍的照片會由 `thumbs.py` 自動依 EXIF 轉正。
 
 ## 部署
 

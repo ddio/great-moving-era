@@ -4,7 +4,7 @@
 同時檢查 images/full/ 底下的圖片是否與 YAML 宣告一致：
   - YAML 宣告了但檔案不存在  -> 錯誤，build 失敗
   - 檔案存在但 YAML 沒提到    -> 警告，提醒補圖說
-  - 缺少對應縮圖              -> 警告，提醒跑 tools/thumbs.py
+  - 缺少對應縮圖              -> 警告，提醒跑 tools/images.py
 """
 import datetime
 import glob
@@ -62,7 +62,8 @@ def resolve_file(stem, where):
         {os.path.basename(p) for e in EXTS for p in glob.glob(os.path.join(FULL_DIR, f"{stem}.{e}"))}
     )
     if not hits:
-        err(f"{where}: 找不到圖片 images/full/{stem}.(jpg|png|webp)")
+        err(f"{where}: 找不到圖片 images/full/{stem}.jpg"
+            f"（原始檔放進 images/src/ 後執行 python3 tools/images.py）")
         return None
     if len(hits) > 1:
         warn(f"{where}: {stem} 有多個副檔名 {hits}，採用 {hits[0]}")
@@ -212,11 +213,11 @@ def main():
         for p in glob.glob(os.path.join(FULL_DIR, f"*.{e}"))
     }
     for orphan in sorted(on_disk - used):
-        warn(f"images/full/{orphan} 沒有寫在 site.yaml 裡，不會出現在頁面上")
+        warn(f"{orphan} 沒有寫在 site.yaml 裡，不會出現在頁面上")
 
     missing_thumb = [f for f in sorted(used) if not os.path.exists(os.path.join(THUMB_DIR, f))]
     if missing_thumb:
-        warn(f"{len(missing_thumb)} 張圖尚未產生縮圖，請執行：python3 tools/thumbs.py")
+        warn(f"{len(missing_thumb)} 張圖尚未產生縮圖，請執行：python3 tools/images.py")
 
     for w in warnings:
         print(f"  ⚠  {w}", file=sys.stderr)

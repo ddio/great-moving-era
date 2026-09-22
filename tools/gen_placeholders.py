@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
-"""依 content/site.yaml 產生假圖片到 images/full/（僅供開發預覽）
+"""依 content/site.yaml 產生假的「原始照片」到 images/src/（僅供開發預覽）
 
-真實照片就位後，刪掉 images/full/ 內容再放入真圖即可，本檔可一併刪除。
+尺寸與手機直拍相同（4032×3024），並刻意寫入 GPS EXIF，
+用來驗證 tools/images.py 有確實清除定位資訊。
+
+真實照片就位後，清空 images/src/ 再放入真圖即可，本檔可一併刪除。
     python3 tools/gen_placeholders.py
 """
 import os
@@ -12,7 +15,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, "content", "site.yaml")
-FULL_DIR = os.path.join(ROOT, "images", "full")
+SRC_DIR = os.path.join(ROOT, "images", "src")
 
 FONT_CANDIDATES = [
     os.path.expanduser("~/.fonts/TaipeiSansTCBeta-Regular.ttf"),
@@ -63,6 +66,18 @@ def wrap(draw, text, fnt, width):
     return lines[:4]
 
 
+def fake_exif(orientation):
+    """塞入 GPS（台北 101）與方向，模擬手機直拍的原始檔。"""
+    exif = Image.Exif()
+    exif[0x0112] = orientation                      # Orientation
+    exif[0x010F] = "FakePhone"                      # Make
+    exif[0x0110] = "Placeholder Cam"                # Model
+    gps = exif.get_ifd(0x8825)
+    gps[1] = "N"; gps[2] = (25, 2, 0)          # 25°02'00"N
+    gps[3] = "E"; gps[4] = (121, 33, 54)        # 121°33'54"E
+    return exif
+
+
 def draw_image(path, w, h, bg, room, kind, no, caption):
     im = Image.new("RGB", (w, h), bg)
     d = ImageDraw.Draw(im)
@@ -78,11 +93,11 @@ def draw_image(path, w, h, bg, room, kind, no, caption):
         d.text((w // 2, y), line, font=f_small, fill=(110, 118, 126), anchor="mm")
         y += int(h * 0.05)
     d.text((w // 2, h - 60), "PLACEHOLDER", font=f_small, fill=(180, 188, 196), anchor="mm")
-    im.save(path, "JPEG", quality=88)
+    im.save(path, "JPEG", quality=88, exif=fake_exif(1))
 
 
 def main():
-    os.makedirs(FULL_DIR, exist_ok=True)
+    os.makedirs(SRC_DIR, exist_ok=True)
     with open(SRC, encoding="utf-8") as fh:
         raw = yaml.safe_load(fh)
 
@@ -100,13 +115,13 @@ def main():
     kind_label = {"plan": "平面圖", "layout": "大格局", "detail": "細節"}
     for rid, name, kind, no, cap, ci in jobs:
         # 大格局橫幅、細節直幅，模擬實際拍攝
-        w, h = (1600, 1200) if kind != "detail" else (1200, 1600)
+        w, h = (4032, 3024) if kind != "detail" else (3024, 4032)
         if kind == "detail" and no % 2 == 0:
-            w, h = 1600, 1200
-        path = os.path.join(FULL_DIR, f"{rid}-{kind}-{no:02d}.jpg")
+            w, h = 4032, 3024
+        path = os.path.join(SRC_DIR, f"{rid}-{kind}-{no:02d}.jpg")
         draw_image(path, w, h, PALETTE[ci % len(PALETTE)], name, kind_label[kind], no, cap)
 
-    print(f"✓ 產生 {len(jobs)} 張假圖到 images/full/")
+    print(f"✓ 產生 {len(jobs)} 張假的原始照片到 images/src/")
     return 0
 
 

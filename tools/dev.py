@@ -6,7 +6,7 @@
 
 監看行為：
     content/site.yaml   -> 跑 build.py -> 重整（失敗則在畫面上顯示錯誤）
-    images/full/*       -> 跑 thumbs.py + build.py -> 重整
+    images/src/*        -> 跑 images.py + build.py -> 重整
     assets/style.css    -> 熱抽換樣式，不重整、不跳位
     assets/app.js
     index.html          -> 重整（保留捲動位置）
@@ -57,8 +57,8 @@ def snapshot():
         path = os.path.join(ROOT, rel)
         if os.path.exists(path):
             files[rel] = os.path.getmtime(path)
-    for path in glob.glob(os.path.join(ROOT, "images", "full", "*")):
-        files["images/full/" + os.path.basename(path)] = os.path.getmtime(path)
+    for path in glob.glob(os.path.join(ROOT, "images", "src", "*")):
+        files["images/src/" + os.path.basename(path)] = os.path.getmtime(path)
     return files
 
 
@@ -82,14 +82,14 @@ def watch():
         names = sorted(changed)
         print(f"\n● 變更：{', '.join(names[:4])}{' …' if len(names) > 4 else ''}")
 
-        need_thumbs = any(n.startswith("images/full/") for n in changed)
-        need_build = need_thumbs or "content/site.yaml" in changed
+        need_images = any(n.startswith("images/src/") for n in changed)
+        need_build = need_images or "content/site.yaml" in changed
 
-        if need_thumbs:
-            ok, out = run(os.path.join(ROOT, "tools", "thumbs.py"))
+        if need_images:
+            ok, out = run(os.path.join(ROOT, "tools", "images.py"))
             print("  " + out.replace("\n", "\n  "))
             if not ok:
-                broadcast("error", title="thumbs.py 失敗", text=out)
+                broadcast("error", title="images.py 失敗", text=out)
                 continue
 
         if need_build:
@@ -254,7 +254,7 @@ def main():
     srv = ThreadingHTTPServer((args.host, args.port), partial(Handler, directory=ROOT))
     srv.daemon_threads = True
     print(f"▶ http://{args.host}:{args.port}   （Ctrl-C 結束）")
-    print("  監看 content/site.yaml、images/full/、assets/、index.html")
+    print("  監看 content/site.yaml、images/src/、assets/、index.html")
     try:
         srv.serve_forever()
     except KeyboardInterrupt:

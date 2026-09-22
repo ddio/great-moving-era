@@ -1,5 +1,5 @@
-# 由 tools/thumbs.py 產生，執行 ./build.sh 即可重建
-images/thumb/
+# 原始照片（母檔）自行保管，不進版控
+images/src/
 
 __pycache__/
 *.pyc
