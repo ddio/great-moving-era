@@ -18,17 +18,34 @@ images/full/*.jpg ──tools/thumbs.py──> images/thumb/*.jpg
 # 1. 把照片放進 images/full/，檔名格式：<房間id>-<類型>-<編號>.jpg
 #    類型為 layout（大格局）或 detail（細節）；整體平面圖用 overview-plan-01.jpg
 # 2. 編輯 content/site.yaml 填文字與圖說
-# 3. 產縮圖 + 產生資料
-./build.sh
-# 4. 本機預覽
-python3 -m http.server 8777    # 開 http://localhost:8777
+# 3. 開發（改檔自動 build、瀏覽器自動更新）
+python3 tools/dev.py           # 開 http://localhost:8777
 ```
+
+要出貨前產生一次完整檔案：`./build.sh`
 
 `build.sh` 會檢查：
 
 - YAML 宣告了但檔案不存在 → **錯誤**，中止
 - 檔案存在但 YAML 沒提到 → 警告（提醒你補圖說）
 - 缺縮圖 → 警告
+
+## 開發 server
+
+```bash
+python3 tools/dev.py             # 預設 127.0.0.1:8777
+python3 tools/dev.py --port 3000
+```
+
+| 改動 | 行為 |
+| --- | --- |
+| `assets/style.css` | 熱抽換樣式，不重整、不跳位 |
+| `content/site.yaml` | 跑 `build.py` → 重整（保留捲動位置） |
+| `images/full/*` | 跑 `thumbs.py`（增量）+ `build.py` → 重整 |
+| `assets/app.js`、`index.html` | 重整 |
+
+build 失敗時錯誤會直接蓋在畫面上，修好即自動消失；server 重啟後瀏覽器會自己接回來。
+開發用腳本由 server 即時注入，不會寫進 `index.html`，部署出去的檔案是乾淨的。
 
 ## YAML 重點
 
