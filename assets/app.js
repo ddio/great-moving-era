@@ -186,14 +186,37 @@
   /* ---------------------------------------------------------- 列印 */
   function preparePrint() {
     var btn = document.getElementById("print-btn"), before = quality;
-    btn.disabled = true; btn.textContent = "載入原圖…";
+    var imgs = Array.prototype.slice.call(document.querySelectorAll("figure.shot img"));
+    var total = imgs.length, done = 0;
+
     setDetails(true);
+    // 延後載入的圖在畫面外不會去抓，列印前要全部叫起來
+    imgs.forEach(function (im) { im.loading = "eager"; });
     setQuality("full");
-    var imgs = Array.prototype.slice.call(document.images);
-    Promise.all(imgs.map(function (im) {
-      return im.decode ? im.decode().catch(function () {}) : Promise.resolve();
-    })).then(function () {
-      btn.disabled = false; btn.textContent = "列印 / 存 PDF";
+
+    btn.disabled = true;
+    btn.textContent = "載入原圖 0/" + total;
+    function tick() {
+      done += 1;
+      btn.textContent = "載入原圖 " + done + "/" + total;
+    }
+
+    // 只等「下載完成」，不呼叫 decode()：一次把幾十張 3000px 全部解碼
+    // 會吃掉數 GB 記憶體，瀏覽器會整個卡死
+    var waits = imgs.map(function (im) {
+      if (im.complete && im.naturalWidth > 0) return Promise.resolve().then(tick);
+      return new Promise(function (res) {
+        im.addEventListener("load", res, { once: true });
+        im.addEventListener("error", res, { once: true });
+      }).then(tick);
+    });
+
+    Promise.race([
+      Promise.all(waits),
+      new Promise(function (res) { setTimeout(res, 60000); })   // 逾時保險
+    ]).then(function () {
+      btn.disabled = false;
+      btn.textContent = "列印 / 存 PDF";
       window.addEventListener("afterprint", function () { setQuality(before); }, { once: true });
       window.print();
     });
