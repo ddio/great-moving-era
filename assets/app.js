@@ -5,8 +5,7 @@
   var D = window.MOVE_DATA;
   if (!D) { document.getElementById("app").textContent = "找不到 data/data.js"; return; }
 
-  var QKEY = "move-explain-quality";
-  var quality = localStorage.getItem(QKEY) === "full" ? "full" : "thumb";
+  var quality = "thumb";      // 畫面一律用縮圖，只有列印會暫時換成原圖
   var GALLERY = [];          // 所有圖片的平面清單，燈箱用
   var isDesktop = window.matchMedia("(min-width: 721px)").matches;
 
@@ -138,36 +137,24 @@
 
     // 搬運條件放在最前面
     document.getElementById("app").insertAdjacentHTML("afterbegin", logisticsHTML());
-    updateDetailButton();
   }
 
-  /* -------------------------------------------------- 圖片品質切換 */
+  /* ---------------------------------- 圖片品質（僅列印時切換成原圖）*/
   function setQuality(q) {
     quality = q === "full" ? "full" : "thumb";
-    localStorage.setItem(QKEY, quality);
-    var dir = "images/" + (quality === "full" ? "full" : "thumb") + "/";
+    var dir = "images/" + quality + "/";
     Array.prototype.forEach.call(document.querySelectorAll("figure.shot img"), function (img) {
       var next = dir + img.dataset.file;
       if (img.getAttribute("src") !== next) img.setAttribute("src", next);
     });
-    Array.prototype.forEach.call(document.querySelectorAll("[data-quality]"), function (b) {
-      b.classList.toggle("on", b.dataset.quality === quality);
-    });
   }
 
-  /* ------------------------------------------------------- 細節收合 */
-  function detailBlocks() { return document.querySelectorAll("details.detail-block"); }
-  function allOpen() {
-    var all = detailBlocks();
-    return all.length > 0 && Array.prototype.every.call(all, function (d) { return d.open; });
-  }
-  function updateDetailButton() {
-    var btn = document.getElementById("toggle-detail");
-    btn.textContent = allOpen() ? "收合細節" : "展開細節";
-  }
+  /* ------------------------ 細節收合（列印與準備列印時全部展開）*/
   function setDetails(open) {
-    Array.prototype.forEach.call(detailBlocks(), function (d) { d.open = open; });
-    updateDetailButton();
+    Array.prototype.forEach.call(
+      document.querySelectorAll("details.detail-block"),
+      function (d) { d.open = open; }
+    );
   }
 
   /* ---------------------------------------------------------- 燈箱 */
@@ -216,17 +203,11 @@
   document.addEventListener("click", function (e) {
     var frame = e.target.closest(".frame");
     if (frame) { openLB(Number(frame.dataset.idx)); return; }
-    var seg = e.target.closest("[data-quality]");
-    if (seg) { setQuality(seg.dataset.quality); return; }
     if (e.target.closest(".lb-prev")) { stepLB(-1); return; }
     if (e.target.closest(".lb-next")) { stepLB(1); return; }
     if (e.target.closest(".lb-close") || e.target === lb) { closeLB(); return; }
-    if (e.target.closest("#toggle-detail")) { setDetails(!allOpen()); return; }
     if (e.target.closest("#print-btn")) { preparePrint(); }
   });
-  document.addEventListener("toggle", function (e) {
-    if (e.target.classList && e.target.classList.contains("detail-block")) updateDetailButton();
-  }, true);
   document.addEventListener("keydown", function (e) {
     if (lb.hidden) return;
     if (e.key === "Escape") closeLB();
@@ -236,5 +217,4 @@
   window.addEventListener("beforeprint", function () { setDetails(true); setQuality("full"); });
 
   render();
-  setQuality(quality);
 })();

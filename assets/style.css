@@ -55,12 +55,6 @@ p { margin: 0; }
 }
 .chips a:hover { border-color: var(--accent); color: var(--accent); }
 .controls { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; }
-.seg { display: inline-flex; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
-.seg button {
-  border: 0; background: #fff; color: var(--ink-soft);
-  padding: 5px 12px; font-size: 0.85rem; cursor: pointer; font-family: inherit;
-}
-.seg button.on { background: var(--accent); color: #fff; }
 .btn {
   border: 1px solid var(--line); background: #fff; color: var(--ink-soft);
   padding: 5px 12px; border-radius: var(--radius); font-size: 0.85rem;
@@ -174,14 +168,12 @@ details.detail-block > summary:hover { color: var(--accent); }
 @media (max-width: 720px) {
   body { font-size: 15px; }
   .wrap { padding: 0 16px; }
-  .toolbar-inner { flex-wrap: wrap; gap: 10px; }
-  .chips { order: 2; width: 100%; flex: 1 0 100%; }
-  .controls { order: 1; width: 100%; justify-content: space-between; }
+  .toolbar-inner { gap: 10px; }
   .logi-grid { grid-template-columns: 1fr; }
   :root { --row: 165px; }
   #overview .img-grid { --row: 230px; }
   .img-grid { gap: 8px; }
-  section { scroll-margin-top: 104px; padding: 26px 0; }
+  section { scroll-margin-top: 58px; padding: 26px 0; }
   .lb-nav { width: 38px; height: 60px; font-size: 1.6rem; }
   table { font-size: 0.84rem; }
   th, td { padding: 6px 6px; }
