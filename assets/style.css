@@ -191,7 +191,7 @@ details.detail-block > summary:hover { color: var(--accent); }
 
 /* ===== 列印：以原圖為主 ===== */
 @media print {
-  @page { margin: 14mm 12mm; }
+  @page { size: A4; margin: 14mm 12mm; }
   body { font-size: 10.5pt; line-height: 1.55; color: #000; }
   .wrap { max-width: none; padding: 0; }
   .toolbar, .lightbox, .site-foot .muted { display: none !important; }

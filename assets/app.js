@@ -5,7 +5,9 @@
   var D = window.MOVE_DATA;
   if (!D) { document.getElementById("app").textContent = "找不到 data/data.js"; return; }
 
-  var quality = "thumb";      // 畫面一律用縮圖，只有列印會暫時換成原圖
+  // 畫面與列印都用 images/thumb（長邊 1000px）：列印版面每張最多 89mm 寬，
+  // 1000px 已是 285–374 DPI。餵 3000px 給印表機只會讓 PDF 肥好幾倍，
+  // 畫質完全看不出差別。點開燈箱才會載入 images/full。
   var GALLERY = [];          // 所有圖片的平面清單，燈箱用
   var isDesktop = window.matchMedia("(min-width: 721px)").matches;
 
@@ -34,7 +36,7 @@
     return "<div class=\"img-grid\">" + images.map(function (img) {
       var idx = GALLERY.length;
       GALLERY.push({ file: img.file, caption: img.caption, group: group, no: img.no });
-      var src = "images/" + (quality === "full" ? "full" : "thumb") + "/" + img.file;
+      var src = "images/thumb/" + img.file;
       var ar = (img.w && img.h) ? (img.w / img.h).toFixed(4) : "1.333";
       return '<figure class="shot" style="--ar:' + ar + '">' +
                '<button type="button" class="frame" data-idx="' + idx + '">' +
@@ -139,14 +141,27 @@
     document.getElementById("app").insertAdjacentHTML("afterbegin", logisticsHTML());
   }
 
-  /* ---------------------------------- 圖片品質（僅列印時切換成原圖）*/
-  function setQuality(q) {
-    quality = q === "full" ? "full" : "thumb";
-    var dir = "images/" + quality + "/";
-    Array.prototype.forEach.call(document.querySelectorAll("figure.shot img"), function (img) {
-      var next = dir + img.dataset.file;
-      if (img.getAttribute("src") !== next) img.setAttribute("src", next);
+  /* ------------------------------------------------ 確保圖片載入完成 */
+  function loadAll(onProgress) {
+    var imgs = Array.prototype.slice.call(document.querySelectorAll("figure.shot img"));
+    var total = imgs.length, done = 0;
+    function tick() { done += 1; if (onProgress) onProgress(done, total); }
+
+    var waits = imgs.map(function (im) {
+      if (im.complete && im.naturalWidth > 0) return Promise.resolve().then(tick);
+      im.loading = "eager";
+      // 畫面外的延後載入圖不會自己開始抓，要重新指派 src 才會觸發
+      im.src = im.getAttribute("src");
+      return new Promise(function (res) {
+        im.addEventListener("load", res, { once: true });
+        im.addEventListener("error", res, { once: true });
+      }).then(tick);
     });
+    if (onProgress) onProgress(0, total);
+    return Promise.race([
+      Promise.all(waits),
+      new Promise(function (res) { setTimeout(res, 60000); })   // 逾時保險
+    ]);
   }
 
   /* ------------------------ 細節收合（列印與準備列印時全部展開）*/
@@ -185,39 +200,14 @@
 
   /* ---------------------------------------------------------- 列印 */
   function preparePrint() {
-    var btn = document.getElementById("print-btn"), before = quality;
-    var imgs = Array.prototype.slice.call(document.querySelectorAll("figure.shot img"));
-    var total = imgs.length, done = 0;
-
+    var btn = document.getElementById("print-btn");
     setDetails(true);
-    // 延後載入的圖在畫面外不會去抓，列印前要全部叫起來
-    imgs.forEach(function (im) { im.loading = "eager"; });
-    setQuality("full");
-
     btn.disabled = true;
-    btn.textContent = "載入原圖 0/" + total;
-    function tick() {
-      done += 1;
-      btn.textContent = "載入原圖 " + done + "/" + total;
-    }
-
-    // 只等「下載完成」，不呼叫 decode()：一次把幾十張 3000px 全部解碼
-    // 會吃掉數 GB 記憶體，瀏覽器會整個卡死
-    var waits = imgs.map(function (im) {
-      if (im.complete && im.naturalWidth > 0) return Promise.resolve().then(tick);
-      return new Promise(function (res) {
-        im.addEventListener("load", res, { once: true });
-        im.addEventListener("error", res, { once: true });
-      }).then(tick);
-    });
-
-    Promise.race([
-      Promise.all(waits),
-      new Promise(function (res) { setTimeout(res, 60000); })   // 逾時保險
-    ]).then(function () {
+    loadAll(function (done, total) {
+      btn.textContent = "載入照片 " + done + "/" + total;
+    }).then(function () {
       btn.disabled = false;
       btn.textContent = "列印 / 存 PDF";
-      window.addEventListener("afterprint", function () { setQuality(before); }, { once: true });
       window.print();
     });
   }
@@ -262,7 +252,13 @@
     else if (e.key === "ArrowLeft") stepLB(-1);
     else if (e.key === "ArrowRight") stepLB(1);
   });
-  window.addEventListener("beforeprint", function () { setDetails(true); setQuality("full"); });
+  window.addEventListener("beforeprint", function () { setDetails(true); });
 
   render();
+
+  // ?print=1：展開細節、載入全部照片，給 tools/make_pdf.py 的無頭瀏覽器用
+  if (/[?&]print=1/.test(location.search)) {
+    setDetails(true);
+    loadAll().then(function () { document.documentElement.dataset.printReady = "1"; });
+  }
 })();
