@@ -258,6 +258,15 @@
 
   render();
 
+  // ?blur=1：分享版面用，文字與照片全部糊掉、只留標題（見 assets/blur.css）
+  if (/[?&]blur=1/.test(location.search)) {
+    document.documentElement.dataset.blur = "1";
+    var link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "assets/blur.css";
+    document.head.appendChild(link);
+  }
+
   // ?print=1：展開細節、載入全部照片，給 tools/make_pdf.py 的無頭瀏覽器用
   if (/[?&]print=1/.test(location.search)) {
     setDetails(true);

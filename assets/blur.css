@@ -1,0 +1,35 @@
+/* 分享版面用：只糊內文與照片，保留標題、房名、欄位名稱。
+   以 ?blur=1 載入，一般網址不受影響。不進版控、不會被 publish.py 上傳。 */
+
+/* 內文用 text-shadow 糊化而不是 filter：行距與換行完全不變 */
+html[data-blur] p,
+html[data-blur] li,
+html[data-blur] dd,
+html[data-blur] td,
+html[data-blur] figcaption {
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  text-shadow: 0 0 7px rgba(31, 35, 40, 0.55) !important;
+}
+
+/* 保留：頁面標題、區塊與房間名稱（h2）、舊址新址（h3）、
+   大格局／細節照片等小標、表格欄位名（th）、條件欄位名（dt）、
+   房間跳轉列、照片編號。這些是版面結構，不是內容。 */
+html[data-blur] figcaption .no {
+  color: var(--accent) !important;
+  -webkit-text-fill-color: var(--accent) !important;
+  text-shadow: none !important;
+}
+
+/* 照片 */
+html[data-blur] figure.shot img {
+  filter: blur(11px);
+  transform: scale(1.1);      /* 蓋掉模糊後的透明邊 */
+}
+/* 平面圖列高比較大，同樣的模糊半徑還看得出格局，要加重 */
+html[data-blur] #overview figure.shot img { filter: blur(24px); }
+html[data-blur] #lb-img { filter: blur(30px); }
+
+@media print {
+  html[data-blur] figure.shot img { filter: blur(9px); transform: scale(1.1); }
+}
