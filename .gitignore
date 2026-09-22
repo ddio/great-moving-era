@@ -1,0 +1,6 @@
+# 由 tools/thumbs.py 產生，執行 ./build.sh 即可重建
+images/thumb/
+
+__pycache__/
+*.pyc
+.DS_Store

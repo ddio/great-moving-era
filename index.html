@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>搬家估價說明</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="site-head" id="top">
+  <div class="wrap">
+    <h1 id="site-title">搬家估價說明</h1>
+    <p class="subtitle" id="site-subtitle"></p>
+    <p class="meta" id="site-meta"></p>
+  </div>
+</header>
+
+<nav class="toolbar" id="toolbar">
+  <div class="wrap toolbar-inner">
+    <div class="chips" id="room-nav"></div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="圖片品質">
+        <button type="button" data-quality="thumb" class="on">縮圖</button>
+        <button type="button" data-quality="full">原圖</button>
+      </div>
+      <button type="button" class="btn" id="toggle-detail">收合細節</button>
+      <button type="button" class="btn btn-print" id="print-btn">列印 / 存 PDF</button>
+    </div>
+  </div>
+</nav>
+
+<main class="wrap" id="app"></main>
+
+<footer class="site-foot wrap">
+  <p id="foot-contact"></p>
+  <p class="muted">本頁僅供搬家估價使用。點擊照片可放大檢視；列印時一律使用原圖。</p>
+</footer>
+
+<div class="lightbox" id="lightbox" hidden>
+  <button type="button" class="lb-close" aria-label="關閉">✕</button>
+  <button type="button" class="lb-nav lb-prev" aria-label="上一張">‹</button>
+  <button type="button" class="lb-nav lb-next" aria-label="下一張">›</button>
+  <figure class="lb-figure">
+    <img id="lb-img" alt="">
+    <figcaption><span id="lb-caption"></span><span class="lb-count" id="lb-count"></span></figcaption>
+  </figure>
+</div>
+
+<script src="data/data.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
