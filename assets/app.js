@@ -222,13 +222,38 @@
     });
   }
 
+  /* ------------------------------------------- 手機：左右滑動切換 */
+  var touchX = 0, touchY = 0, touching = false, swiped = false;
+  lb.addEventListener("touchstart", function (e) {
+    if (e.touches.length !== 1) { touching = false; return; }
+    touchX = e.touches[0].clientX;
+    touchY = e.touches[0].clientY;
+    touching = true;
+    swiped = false;
+  }, { passive: true });
+  lb.addEventListener("touchend", function (e) {
+    if (!touching || lb.hidden) return;
+    touching = false;
+    var t = e.changedTouches[0];
+    var dx = t.clientX - touchX, dy = t.clientY - touchY;
+    // 橫向位移夠大、且明顯比縱向多，才算滑動
+    if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.2) {
+      swiped = true;      // 別讓接著送出的 click 被當成點背景關閉
+      stepLB(dx < 0 ? 1 : -1);
+    }
+  }, { passive: true });
+
   /* ---------------------------------------------------------- 事件 */
   document.addEventListener("click", function (e) {
     var frame = e.target.closest(".frame");
     if (frame) { openLB(Number(frame.dataset.idx)); return; }
     if (e.target.closest(".lb-prev")) { stepLB(-1); return; }
     if (e.target.closest(".lb-next")) { stepLB(1); return; }
-    if (e.target.closest(".lb-close") || e.target === lb) { closeLB(); return; }
+    if (e.target.closest(".lb-close") || e.target === lb) {
+      if (!swiped) closeLB();
+      swiped = false;
+      return;
+    }
     if (e.target.closest("#print-btn")) { preparePrint(); }
   });
   document.addEventListener("keydown", function (e) {
