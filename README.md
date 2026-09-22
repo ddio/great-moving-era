@@ -159,12 +159,27 @@ Chrome 就會把每張照片重新取樣成無損點陣圖，同一份內容會�
 ## 部署
 
 ```bash
-npx surge . your-project-name.surge.sh
+python3 tools/publish.py --domain xxxx.surge.sh   # 第一次，網域記在 .surge-domain
+python3 tools/publish.py                          # 之後沿用同一個網域
+python3 tools/publish.py --dry-run                # 只產 dist/，不上傳
 ```
 
-整包（含 `images/full/`）直接上傳即可，沒有後端。
-若照片很多，建議先確認 `images/full/` 總大小；縮圖已壓到約原圖的 30%。
+**不要用 `surge .`**。工作目錄裡有不能公開的東西：`images/src/`（原始照片，約 180MB）、
+`content/site.yaml`（未經整理的地址電話）、`tools/make_pdf.py` 產出的 PDF。
+`publish.py` 用白名單只複製這些到 `dist/`：
+
+```
+index.html  assets/  data/data.js  images/full/  images/thumb/  robots.txt  CNAME
+```
+
+`robots.txt` 擋搜尋引擎，`index.html` 也有 `<meta name="robots" content="noindex">`。
+
+> **這是公開網址，沒有密碼保護。** surge 免費方案不提供存取控制，
+> 網址本身就是唯一的門檻——只有拿到網址的人找得到，但拿到的人都看得到全部內容。
+> 網址用隨機字串、不帶任何語意，也不要進版控（`.surge-domain` 已在 `.gitignore`）。
+> 搬完家之後記得 `npx surge teardown <網域>` 收掉。
 
 ## 需求
 
 Python 3 + PyYAML + Pillow（本機皆已安裝），不需 npm 套件、不需 ImageMagick。
+產生 PDF 需要 Chrome，發佈需要 `npx surge`。

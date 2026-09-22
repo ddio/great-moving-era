@@ -7,6 +7,9 @@ data/data.js
 images/
 # tools/make_pdf.py 的產出
 *.pdf
+# 發佈用的暫存目錄與網址（網址本身就是這份資料唯一的門檻）
+dist/
+.surge-domain
 # ─────────────────────────────────────────────────
 
 __pycache__/
