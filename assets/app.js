@@ -36,11 +36,11 @@
       var idx = GALLERY.length;
       GALLERY.push({ file: img.file, caption: img.caption, group: group, no: img.no });
       var src = "images/" + (quality === "full" ? "full" : "thumb") + "/" + img.file;
-      return '<figure class="shot">' +
+      var ar = (img.w && img.h) ? (img.w / img.h).toFixed(4) : "1.333";
+      return '<figure class="shot" style="--ar:' + ar + '">' +
                '<button type="button" class="frame" data-idx="' + idx + '">' +
                  '<img src="' + esc(src) + '" alt="' + esc(img.caption || img.file) + '" ' +
-                      'loading="lazy" decoding="async" data-file="' + esc(img.file) + '" ' +
-                      'style="aspect-ratio:' + (img.w || 4) + "/" + (img.h || 3) + '">' +
+                      'loading="lazy" decoding="async" data-file="' + esc(img.file) + '">' +
                "</button>" +
                '<figcaption><span class="no">' + fmt(img.no) + "</span>" +
                  esc(img.caption || "") + "</figcaption>" +

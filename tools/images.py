@@ -16,6 +16,7 @@ PNG 原始檔（平面圖、截圖等）維持 PNG 輸出，保留透明背景�
 """
 import io
 import os
+import shutil
 import sys
 
 from PIL import Image, ImageCms, ImageOps
@@ -50,6 +51,12 @@ def to_srgb(im, keep_alpha):
         return im  # 描述檔壞掉就照原樣處理，頂多顏色略有差異
 
 
+def save_png(im):
+    buf = io.BytesIO()
+    im.save(buf, "PNG", optimize=True)
+    return buf.getvalue()
+
+
 def render(src_path, dst_path, max_edge, quality):
     as_png = dst_path.lower().endswith(".png")
     with Image.open(src_path) as im:
@@ -58,12 +65,18 @@ def render(src_path, dst_path, max_edge, quality):
         alpha = im.mode in ("RGBA", "LA") or (im.mode == "P" and "transparency" in im.info)
         if im.mode in ("P", "L", "LA", "1", "I", "F"):
             im = im.convert("RGBA" if alpha else "RGB")
+        if alpha and im.getchannel("A").getextrema() == (255, 255):
+            im = im.convert("RGB")      # 整張都不透明，留著 alpha 只是浪費
+            alpha = False
         im = to_srgb(im, alpha)
 
         # 縮圖會做內插、把線稿的色數撐開，所以要在縮之前判斷
         line_art = as_png and im.getcolors(maxcolors=256) is not None
 
-        im.thumbnail((max_edge, max_edge), Image.LANCZOS)
+        # 只小一點點就不要重新取樣：平面圖這類平坦色塊被內插後，
+        # PNG 反而會變大（實測 1026px→1000px：48K 變成 147K）
+        if max(im.size) > max_edge * 1.1:
+            im.thumbnail((max_edge, max_edge), Image.LANCZOS)
 
         if not as_png:
             im = im.convert("RGB")
@@ -74,14 +87,18 @@ def render(src_path, dst_path, max_edge, quality):
             im.info.pop(k, None)
 
         if as_png:
+            # 索引色不一定比較小：縮圖經過內插後色階變多，索引色反而會變肥。
+            # 兩種都存進記憶體，取較小的那個。
+            options = [save_png(im)]
             if line_art:
                 # 透明圖只有 FASTOCTREE 能處理；線稿不抖動比較乾淨
-                im = im.quantize(
+                options.append(save_png(im.quantize(
                     colors=256,
                     method=Image.FASTOCTREE if alpha else Image.MEDIANCUT,
                     dither=Image.NONE,
-                )
-            im.save(dst_path, "PNG", optimize=True)
+                )))
+            with open(dst_path, "wb") as fh:
+                fh.write(min(options, key=len))
         else:
             im.save(dst_path, "JPEG", quality=quality, optimize=True, progressive=True)
 
@@ -125,6 +142,11 @@ def main():
         except Exception as e:
             failed.append(f"{name}：{e}")
             continue
+
+        # 保險：縮圖若反而比大圖大（PNG 常見），直接沿用大圖的檔案
+        for (prev, _, _), (cur, _, _) in zip(targets, targets[1:]):
+            if os.path.getsize(cur) > os.path.getsize(prev):
+                shutil.copyfile(prev, cur)
 
         sizes = [os.path.getsize(p) for p, _, _ in targets]
         if sizes[0] > 1_500_000:

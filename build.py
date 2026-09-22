@@ -77,7 +77,7 @@ def resolve_file(stem, where):
         {os.path.basename(p) for e in EXTS for p in glob.glob(os.path.join(FULL_DIR, f"{stem}.{e}"))}
     )
     if not hits:
-        err(f"{where}: 找不到圖片 images/full/{stem}.jpg"
+        err(f"{where}: 找不到圖片 images/full/{stem}.(jpg|png|webp)"
             f"（原始檔放進 images/src/ 後執行 python3 tools/images.py）")
         return None
     if len(hits) > 1:

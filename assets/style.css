@@ -11,6 +11,7 @@
   --accent-soft: #eef3f7;
   --warn: #9a5b1e;
   --radius: 6px;
+  --row: 210px;          /* 縮圖列高，寬度由每張照片的比例決定 */
 }
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
@@ -107,20 +108,33 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-sp
 td .note { color: var(--warn); }
 
 /* ===== 圖片 ===== */
-.img-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; }
-figure.shot { margin: 0; }
+/* 統一列高、寬度依各自比例，像照片牆一樣排滿換行 */
+.img-grid { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 12px; }
+figure.shot {
+  margin: 0;
+  /* 基準寬度＝比例×列高；同一排有剩餘空間時等比撐開，
+     最多 1.2 倍，左右各裁掉不到 8%，點開仍是完整原圖 */
+  flex: var(--ar, 1.333) 0 calc(var(--ar, 1.333) * var(--row));
+  max-width: min(100%, calc(var(--ar, 1.333) * var(--row) * 1.2));
+}
 figure.shot button.frame {
-  display: block; width: 100%; padding: 0; cursor: zoom-in;
+  display: block; width: 100%; height: var(--row); padding: 0; cursor: zoom-in;
   border: 1px solid var(--line); border-radius: var(--radius);
   background: var(--bg-soft); overflow: hidden;
 }
-figure.shot img { display: block; width: 100%; height: auto; max-height: 52vh; object-fit: contain; }
-figure.shot figcaption { font-size: 0.84rem; color: var(--ink-soft); padding: 7px 2px 0; }
+figure.shot img { display: block; width: 100%; height: 100%; object-fit: cover; }
+figure.shot figcaption {
+  font-size: 0.82rem; color: var(--ink-soft); padding: 6px 2px 0;
+  overflow-wrap: anywhere;
+}
 figure.shot figcaption .no {
   display: inline-block; min-width: 1.6em; margin-right: 5px; padding: 0 5px;
   background: var(--accent-soft); color: var(--accent); border-radius: 3px;
   font-size: 0.74rem; text-align: center;
 }
+/* 平面圖是拿來讀的，給大一點 */
+#overview .img-grid { --row: 320px; }
+
 details.detail-block { margin-top: 6px; }
 details.detail-block > summary {
   cursor: pointer; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.06em;
@@ -164,7 +178,9 @@ details.detail-block > summary:hover { color: var(--accent); }
   .chips { order: 2; width: 100%; flex: 1 0 100%; }
   .controls { order: 1; width: 100%; justify-content: space-between; }
   .logi-grid { grid-template-columns: 1fr; }
-  .img-grid { grid-template-columns: 1fr; gap: 12px; }
+  :root { --row: 165px; }
+  #overview .img-grid { --row: 230px; }
+  .img-grid { gap: 8px; }
   section { scroll-margin-top: 104px; padding: 26px 0; }
   .lb-nav { width: 38px; height: 60px; font-size: 1.6rem; }
   table { font-size: 0.84rem; }
@@ -194,10 +210,12 @@ details.detail-block > summary:hover { color: var(--accent); }
   tr { break-inside: avoid; }
   thead { display: table-header-group; }
 
-  .img-grid { grid-template-columns: 1fr 1fr; gap: 8pt; }
-  figure.shot { break-inside: avoid; }
+  .img-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8pt; }
+  figure.shot { break-inside: avoid; width: auto; max-width: none; }
+  figure.shot button.frame { height: auto; }
   figure.shot button.frame { border: 1px solid #bbb; background: none; }
-  figure.shot img { aspect-ratio: auto; max-height: 68mm; object-fit: contain; }
+  figure.shot img { width: 100%; height: auto; aspect-ratio: auto;
+    max-height: 68mm; object-fit: contain; }
   figure.shot figcaption { font-size: 8.5pt; color: #000; }
   figure.shot figcaption .no { background: none; border: 1px solid #999; color: #000; }
   a { color: #000; text-decoration: none; }
