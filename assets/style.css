@@ -34,6 +34,7 @@ p { margin: 0; }
 .site-head h1 { font-size: 1.7rem; letter-spacing: -0.01em; }
 .site-head .subtitle { color: var(--ink-soft); margin-top: 6px; }
 .site-head .meta { color: var(--ink-mute); font-size: 0.86rem; margin-top: 10px; }
+.site-head .contact { color: var(--ink-soft); margin-top: 3px; }
 
 /* ===== 工具列 ===== */
 .toolbar {

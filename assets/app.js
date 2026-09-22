@@ -116,10 +116,12 @@
     document.getElementById("site-subtitle").textContent = D.subtitle || "";
     var c = D.contact || {};
     document.getElementById("site-meta").textContent =
-      [D.updated ? "更新日期 " + D.updated : "", c.name ? "聯絡人 " + c.name : "", c.phone || ""]
-        .filter(Boolean).join("　·　");
-    document.getElementById("foot-contact").textContent =
-      [c.name, c.phone, c.note].filter(Boolean).join("　·　");
+      D.updated ? "更新日期 " + D.updated : "";
+    // 聯絡資訊獨立一行：note 多半是可聯繫時間，要跟電話擺在一起才有用
+    var contact = [c.name ? "聯絡人 " + c.name : "", c.phone, c.note]
+      .filter(Boolean).join("　·　");
+    document.getElementById("site-contact").textContent = contact;
+    document.getElementById("foot-contact").textContent = contact;
 
     var ovHTML = '<section id="overview"><h2>整體說明<span class="tag">平面圖</span></h2>' +
       notesHTML(D.overview.notes) +
