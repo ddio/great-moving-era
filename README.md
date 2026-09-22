@@ -13,12 +13,27 @@ images/src/*  ──tools/images.py──┬─> images/full/    長邊 3000px�
 
 **你只需要編輯 `content/site.yaml` 與把原始照片放到 `images/src/`。**
 
+第一次使用：`cp content/site.example.yaml content/site.yaml`，
+或用 `python3 tools/scaffold.py -o content/site.yaml` 依現有照片直接產出待填骨架。
+
+## 什麼會進 git
+
+| 進版控 | 不進版控（`.gitignore`） |
+| --- | --- |
+| 程式碼、README | `content/site.yaml` — 實際地址、電話、屋況 |
+| `content/site.example.yaml` — 空白範本 | `data/data.js` — 由上者產生，內容相同 |
+| | `images/` — 原始照片與所有產生出來的圖片 |
+
+個資與照片只留在你自己的機器上，部署時由 surge 直接上傳工作目錄。
+
 ## 日常流程
 
 ```bash
-# 1. 把原始照片放進 images/src/，檔名格式：<房間id>-<類型>-<編號>.jpg
+# 1. 把原始照片放進 images/src/，檔名格式：<房間>-<類型>-<編號>.jpg
 #    類型為 layout（大格局）或 detail（細節）；整體平面圖用 overview-plan-01.jpg
-# 2. 編輯 content/site.yaml 填文字與圖說
+# 2. 依照片產生待填的 site.yaml 骨架（第一次或大量加照片後）
+python3 tools/scaffold.py -o content/site.yaml
+# 　　接著編輯 content/site.yaml 填文字與圖說
 # 3. 開發（改檔自動 build、瀏覽器自動更新）
 python3 tools/dev.py           # 開 http://localhost:8777
 ```
@@ -92,14 +107,29 @@ build 失敗時錯誤會直接蓋在畫面上，修好即自動消失；server �
 
 iPhone 的 `.HEIC` 目前不支援，請先轉成 JPEG（工具會列出被跳過的檔案）。
 
-## 換成真實照片
+## 依照片產生 YAML 骨架
 
 ```bash
-rm images/src/*                  # 清掉假的原始檔
-rm tools/gen_placeholders.py     # 假圖產生器不再需要
-# 把真實照片放進 images/src/ 後
-./build.sh
+python3 tools/scaffold.py                        # 先印出來看
+python3 tools/scaffold.py -o content/site.yaml   # 寫入（不覆蓋既有檔案）
+python3 tools/scaffold.py -o content/site.yaml --force
 ```
+
+掃描 `images/src/`，依檔名分好房間與 layout／detail，列出每張照片的編號讓你填圖說：
+
+```yaml
+  - id: 廚房
+    name: 廚房
+    layout:
+      - 1:                 # 對應 images/src/廚房-layout-01.jpg
+      - 2:
+```
+
+**不會合併既有的 `content/site.yaml`**，`--force` 會整個蓋掉，重跑前請自行備份。
+平常新增照片不需要重跑：`build.py` 會警告哪些照片還沒寫進 YAML。
+
+房間名可以用中文（會出現在檔名與網址上，瀏覽器會自動編碼）；
+空白與 `/ \ ? # % : * " < > |` 不能用。
 
 ## 部署
 

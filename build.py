@@ -188,8 +188,9 @@ def main():
         if not rid:
             err(f"房間「{name}」缺少 id")
             continue
-        if not re.fullmatch(r"[a-z0-9][a-z0-9_-]*", rid):
-            err(f"房間 id「{rid}」請只用小寫英數與 - _（檔名會用到）")
+        if re.search(r'[\s/\\?#%:*"<>|]', rid) or rid[0] in ".-":
+            err(f"房間 id「{rid}」含有不能用在檔名或網址的字元"
+                f"（空白與 / \\ ? # % : * \" < > | 都不行）")
         if rid in seen_ids:
             err(f"房間 id「{rid}」重複")
         seen_ids.add(rid)
