@@ -5,6 +5,8 @@ content/site.yaml
 data/data.js
 # 原始照片與所有產生出來的圖片
 images/
+# tools/make_pdf.py 的產出
+*.pdf
 # ─────────────────────────────────────────────────
 
 __pycache__/
