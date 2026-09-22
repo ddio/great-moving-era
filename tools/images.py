@@ -6,7 +6,10 @@
 
 一律移除 EXIF（含 GPS 定位）、依原始方向轉正；
 若原始檔帶 ICC 色彩描述（iPhone 多為 Display P3）會先轉成 sRGB，
-避免拔掉描述檔後顏色跑掉。PNG 原始檔（平面圖等線稿）維持 PNG 輸出。
+避免拔掉描述檔後顏色跑掉。
+
+PNG 原始檔（平面圖、截圖等）維持 PNG 輸出，保留透明背景；
+原圖色數在 256 色以內者（線稿類）輸出為索引色 PNG，檔案會小很多。
 
     python3 tools/images.py            # 增量，只處理新的或改過的
     python3 tools/images.py --force    # 全部重做
@@ -34,33 +37,50 @@ def out_name(src_name):
     return stem + (".png" if ext.lower() == ".png" else ".jpg")
 
 
-def to_srgb(im):
+def to_srgb(im, keep_alpha):
     icc = im.info.get("icc_profile")
     if not icc:
         return im
     try:
         src = ImageCms.ImageCmsProfile(io.BytesIO(icc))
-        return ImageCms.profileToProfile(im, src, ImageCms.createProfile("sRGB"),
-                                         outputMode="RGB")
+        return ImageCms.profileToProfile(
+            im, src, ImageCms.createProfile("sRGB"),
+            outputMode="RGBA" if keep_alpha else "RGB")
     except Exception:
         return im  # 描述檔壞掉就照原樣處理，頂多顏色略有差異
 
 
 def render(src_path, dst_path, max_edge, quality):
+    as_png = dst_path.lower().endswith(".png")
     with Image.open(src_path) as im:
         im = ImageOps.exif_transpose(im)   # 把拍攝方向烘進像素
-        im = to_srgb(im)
+
+        alpha = im.mode in ("RGBA", "LA") or (im.mode == "P" and "transparency" in im.info)
+        if im.mode in ("P", "L", "LA", "1", "I", "F"):
+            im = im.convert("RGBA" if alpha else "RGB")
+        im = to_srgb(im, alpha)
+
+        # 縮圖會做內插、把線稿的色數撐開，所以要在縮之前判斷
+        line_art = as_png and im.getcolors(maxcolors=256) is not None
+
         im.thumbnail((max_edge, max_edge), Image.LANCZOS)
 
-        if dst_path.lower().endswith(".png"):
-            im = im.convert("RGBA" if "A" in im.getbands() else "RGB")
-        else:
+        if not as_png:
+            im = im.convert("RGB")
+        elif not alpha:
             im = im.convert("RGB")
 
         for k in META_KEYS:            # 落地前清掉所有中介資料
             im.info.pop(k, None)
 
-        if dst_path.lower().endswith(".png"):
+        if as_png:
+            if line_art:
+                # 透明圖只有 FASTOCTREE 能處理；線稿不抖動比較乾淨
+                im = im.quantize(
+                    colors=256,
+                    method=Image.FASTOCTREE if alpha else Image.MEDIANCUT,
+                    dither=Image.NONE,
+                )
             im.save(dst_path, "PNG", optimize=True)
         else:
             im.save(dst_path, "JPEG", quality=quality, optimize=True, progressive=True)
@@ -85,6 +105,7 @@ def main():
     done = reused = 0
     src_bytes = out_bytes = 0
     failed = []
+    oversized = []
 
     for name in names:
         src = os.path.join(SRC_DIR, name)
@@ -106,6 +127,8 @@ def main():
             continue
 
         sizes = [os.path.getsize(p) for p, _, _ in targets]
+        if sizes[0] > 1_500_000:
+            oversized.append(f"{out_name(name)}（大圖 {sizes[0]//1024}K）")
         src_bytes += os.path.getsize(src)
         out_bytes += sum(sizes)
         done += 1
@@ -124,6 +147,9 @@ def main():
     if skipped_types:
         print(f"  ⚠  跳過不支援的格式：{', '.join(skipped_types)}", file=sys.stderr)
         print("     （iPhone 的 .HEIC 請先在手機或 Finder 轉成 JPEG）", file=sys.stderr)
+    if oversized:
+        print(f"  ⚠  輸出偏大：{'、'.join(oversized)}", file=sys.stderr)
+        print("     照片類的原始檔請存成 JPEG，PNG 適合平面圖與線稿", file=sys.stderr)
     for f in failed:
         print(f"  ✗  {f}", file=sys.stderr)
 

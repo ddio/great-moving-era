@@ -70,6 +70,8 @@ build 失敗時錯誤會直接蓋在畫面上，修好即自動消失；server �
 | 說明文字 | `notes:` 底下一行一個 bullet；要子項就寫 `標題:` 再縮排列出 |
 | 圖片 | `layout:` / `detail:` 底下**只寫圖說**，檔名依順序自動組成 |
 | 指定編號 | 寫成 `- 5: 圖說` → `<房間>-<類型>-05.jpg`，之後接續 06 |
+| 不寫圖說 | 冒號後面留空，頁面只顯示編號 |
+| 整區不寫圖說 | 整個區塊寫成一行 `layout: auto`，該類照片全部自動帶入 |
 | 物品 | `[名稱, 數量, 尺寸, 備註]`；尺寸寫 `長×寬×高cm` 會自動算材積 |
 | 標準容器 | 尺寸填「標準箱」(60×40×40)、「標準吊衣箱」(50×50×100) 也會計入材積 |
 | 紙箱歸類 | 品項名稱含「箱」字者，統計時與家具家電分開 |
@@ -100,7 +102,9 @@ build 失敗時錯誤會直接蓋在畫面上，修好即自動消失；server �
 - **移除全部 EXIF，包含 GPS 定位**（連拍攝器材、時間都不會留下）
 - 依原始方向自動轉正，手機直拍不會躺著
 - 帶 ICC 色彩描述（iPhone 多為 Display P3）者先轉成 sRGB，避免拔掉描述檔後顏色跑掉
-- PNG 原始檔（平面圖等線稿）維持 PNG 輸出，其餘轉 JPEG
+- PNG 原始檔維持 PNG 輸出並保留透明背景，其餘轉 JPEG
+- 原圖色數在 256 色以內的 PNG（平面圖、線稿）輸出為索引色，檔案小很多
+- 輸出超過 1.5MB 會提醒——照片類的原始檔請存成 JPEG，PNG 適合線稿
 
 `images.py` 是增量的：只處理新的或改過的檔案，原始檔刪掉時會一併清除對應輸出。
 要全部重做用 `python3 tools/images.py --force`。
@@ -113,6 +117,7 @@ iPhone 的 `.HEIC` 目前不支援，請先轉成 JPEG（工具會列出被跳�
 python3 tools/scaffold.py                        # 先印出來看
 python3 tools/scaffold.py -o content/site.yaml   # 寫入（不覆蓋既有檔案）
 python3 tools/scaffold.py -o content/site.yaml --force
+python3 tools/scaffold.py --auto                 # 不逐張列，改用 auto
 ```
 
 掃描 `images/src/`，依檔名分好房間與 layout／detail，列出每張照片的編號讓你填圖說：
@@ -124,6 +129,9 @@ python3 tools/scaffold.py -o content/site.yaml --force
       - 1:                 # 對應 images/src/廚房-layout-01.jpg
       - 2:
 ```
+
+完全不打算寫圖說的話用 `--auto`，圖片區塊只會是一行 `layout: auto`，
+之後加減照片都不用再動 YAML。
 
 **不會合併既有的 `content/site.yaml`**，`--force` 會整個蓋掉，重跑前請自行備份。
 平常新增照片不需要重跑：`build.py` 會警告哪些照片還沒寫進 YAML。

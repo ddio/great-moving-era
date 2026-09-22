@@ -121,7 +121,7 @@ figure.shot button.frame {
   border: 1px solid var(--line); border-radius: var(--radius);
   background: var(--bg-soft); overflow: hidden;
 }
-figure.shot img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: contain; }
+figure.shot img { display: block; width: 100%; height: auto; max-height: 52vh; object-fit: contain; }
 figure.shot figcaption { font-size: 0.84rem; color: var(--ink-soft); padding: 7px 2px 0; }
 figure.shot figcaption .no {
   display: inline-block; min-width: 1.6em; margin-right: 5px; padding: 0 5px;

@@ -4,6 +4,7 @@
     python3 tools/scaffold.py                       # 印出來看
     python3 tools/scaffold.py -o content/site.yaml  # 寫入（不覆蓋既有檔案）
     python3 tools/scaffold.py -o content/site.yaml --force
+    python3 tools/scaffold.py --auto                # 不逐張列，改用 auto
 
 房間順序依檔名排序，請自行調整成實際走動的順序。
 既有的 content/site.yaml 不會被合併，重跑前請自行備份。
@@ -25,6 +26,10 @@ HEADER = """\
 #     - 1: 從玄關看向客廳全景
 # 編號對應 images/src/<房間>-<類型>-<編號>.jpg
 # 不需要出現在頁面上的照片，把整行刪掉即可。
+#
+# 不想寫圖說：冒號後面留空就好，頁面上只會顯示編號。
+# 整個區塊都不寫圖說，可以直接改成一行 auto，照片會自動全部帶入：
+#     layout: auto
 """
 
 
@@ -42,11 +47,13 @@ def scan():
     return rooms, unmatched
 
 
-def image_lines(numbers):
-    return [f"      - {n}:" for n in sorted(numbers)] or ["      #（這個房間沒有這類照片）"]
+def image_lines(numbers, auto):
+    if auto:
+        return None          # 由呼叫端改寫成 `layout: auto`
+    return [f"      - {n}:" for n in sorted(numbers)]
 
 
-def build(rooms):
+def build(rooms, auto=False):
     out = [HEADER]
     out.append("title: OO 路 → XX 路 搬家說明")
     out.append("subtitle: 提供給搬家公司線上估價使用")
@@ -82,10 +89,15 @@ def build(rooms):
         out.append("    summary:")
         out.append("    notes:\n      #- ")
         out.append("    items:\n      #- [品項, 1, 100×50×80cm, 備註]")
-        out.append("    layout:")
-        out.extend(image_lines(kinds.get("layout", [])))
-        out.append("    detail:")
-        out.extend(image_lines(kinds.get("detail", [])))
+        for kind in ("layout", "detail"):
+            nums = kinds.get(kind, [])
+            if not nums:
+                out.append(f"    #{kind}:（這個房間沒有這類照片）")
+            elif auto:
+                out.append(f"    {kind}: auto")
+            else:
+                out.append(f"    {kind}:")
+                out.extend(image_lines(nums, False))
         out.append("")
     return "\n".join(out)
 
@@ -94,6 +106,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("-o", "--out")
     ap.add_argument("--force", action="store_true")
+    ap.add_argument("--auto", action="store_true",
+                    help="圖片區塊只寫 auto，不逐張列出編號（不打算寫圖說時用）")
     args = ap.parse_args()
 
     if not os.path.isdir(SRC_DIR):
@@ -111,7 +125,7 @@ def main():
         print("images/src/ 裡沒有符合命名規則的照片", file=sys.stderr)
         return 1
 
-    text = build(rooms)
+    text = build(rooms, auto=args.auto)
     if not args.out:
         print(text)
         return 0

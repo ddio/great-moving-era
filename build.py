@@ -14,6 +14,7 @@ import re
 import sys
 
 import yaml
+from PIL import Image
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(ROOT, "content", "site.yaml")
@@ -23,6 +24,11 @@ THUMB_DIR = os.path.join(ROOT, "images", "thumb")
 EXTS = ("jpg", "jpeg", "png", "webp", "JPG", "JPEG", "PNG", "WEBP")
 
 errors, warnings = [], []
+
+
+def text(v):
+    """YAML 空欄位會是 None，直接 str() 會印出字面的 "None"。"""
+    return "" if v is None else str(v)
 
 
 def err(msg):
@@ -41,21 +47,30 @@ def parse_notes(raw, where):
         if item is None:
             continue
         if isinstance(item, (str, int, float, datetime.date)):
-            out.append({"text": str(item), "children": []})
+            out.append({"text": text(item), "children": []})
         elif isinstance(item, dict) and len(item) == 1:
             key, val = next(iter(item.items()))
             kids = []
             if isinstance(val, list):
-                kids = [str(v) for v in val if v is not None]
+                kids = [text(v) for v in val if v is not None]
             elif val is not None:
-                kids = [str(val)]
-            out.append({"text": str(key), "children": kids})
+                kids = [text(val)]
+            out.append({"text": text(key), "children": kids})
         else:
             err(f"{where}: 看不懂的說明項目 {item!r}（若文字中有半形冒號請用引號包起來）")
     return out
 
 
 # --------------------------------------------------------------- images
+def dimensions(fname):
+    """給前端排版用，避免圖片載入前後跳版。"""
+    try:
+        with Image.open(os.path.join(FULL_DIR, fname)) as im:
+            return im.size
+    except Exception:
+        return (4, 3)
+
+
 def resolve_file(stem, where):
     """用 <stem>.* 找出實際檔案，回傳檔名（含副檔名）。"""
     hits = sorted(
@@ -70,8 +85,37 @@ def resolve_file(stem, where):
     return hits[0]
 
 
+def scan_images(owner_id, kind):
+    """images/full 裡所有 <owner>-<kind>-<編號> 的檔案，依編號排序。"""
+    found = {}
+    for e in EXTS:
+        for path in glob.glob(os.path.join(FULL_DIR, f"{owner_id}-{kind}-*.{e}")):
+            name = os.path.basename(path)
+            m = re.fullmatch(rf"{re.escape(owner_id)}-{kind}-(\d+)\.[^.]+", name)
+            if m:
+                found[int(m.group(1))] = name
+    out = []
+    for n in sorted(found):
+        w, h = dimensions(found[n])
+        out.append({"file": found[n], "caption": "", "no": n, "w": w, "h": h})
+    return out
+
+
 def parse_images(owner_id, kind, raw, where):
-    """一項 = 圖說（編號自動遞增），或 `編號: 圖說`（指定編號）。"""
+    """三種寫法：
+       auto            -> 自動帶入該房間這一類的所有照片，不附圖說
+       - 圖說           -> 編號自動遞增
+       - 編號: 圖說     -> 指定編號
+    """
+    if isinstance(raw, str):
+        if raw.strip().lower() != "auto":
+            err(f"{where}: 只認得 auto，或改成一行一張的圖說清單")
+            return []
+        found = scan_images(owner_id, kind)
+        if not found:
+            warn(f"{where}: 寫了 auto，但 images/full 裡沒有 {owner_id}-{kind}-* 的照片")
+        return found
+
     out, n = [], 0
     for item in raw or []:
         if item is None or isinstance(item, str):
@@ -83,7 +127,7 @@ def parse_images(owner_id, kind, raw, where):
                 err(f"{where}: 「{key}」不是編號。圖說若含半形冒號請用引號包起來，例如 \"抽屜：線材\"")
                 continue
             n = key
-            caption = "" if val is None else str(val)
+            caption = text(val)
         else:
             err(f"{where}: 看不懂的圖片項目 {item!r}")
             continue
@@ -91,7 +135,8 @@ def parse_images(owner_id, kind, raw, where):
         stem = f"{owner_id}-{kind}-{n:02d}"
         fname = resolve_file(stem, f"{where} 第 {n} 張")
         if fname:
-            out.append({"file": fname, "caption": caption, "no": n})
+            w, h = dimensions(fname)
+            out.append({"file": fname, "caption": caption, "no": n, "w": w, "h": h})
     return out
 
 
@@ -139,13 +184,13 @@ def parse_items(raw, where):
         except (TypeError, ValueError):
             err(f"{where}: 品項「{name}」的數量 {qty!r} 不是數字")
             qty = 0
-        size = str(size or "")
+        size = text(size)
         out.append(
             {
-                "name": str(name),
+                "name": text(name),
                 "qty": qty,
                 "size": size,
-                "note": str(note or ""),
+                "note": text(note),
                 "volume": volume_m3(size),
             }
         )
@@ -166,9 +211,9 @@ def main():
 
     ov = raw.get("overview") or {}
     site = {
-        "title": str(raw.get("title", "搬家說明")),
-        "subtitle": str(raw.get("subtitle", "")),
-        "updated": str(raw.get("updated", "")),
+        "title": text(raw.get("title")) or "搬家說明",
+        "subtitle": text(raw.get("subtitle")),
+        "updated": text(raw.get("updated")),
         "contact": raw.get("contact") or {},
         "logistics": raw.get("logistics") or {},
         "overview": {
@@ -183,8 +228,8 @@ def main():
 
     seen_ids = set()
     for room in raw.get("rooms") or []:
-        rid = str(room.get("id", "")).strip()
-        name = str(room.get("name", rid))
+        rid = text(room.get("id")).strip()
+        name = text(room.get("name")) or rid
         if not rid:
             err(f"房間「{name}」缺少 id")
             continue
@@ -199,7 +244,7 @@ def main():
             {
                 "id": rid,
                 "name": name,
-                "summary": str(room.get("summary", "")),
+                "summary": text(room.get("summary")),
                 "notes": parse_notes(room.get("notes"), f"{rid}.notes"),
                 "items": parse_items(room.get("items"), f"{rid}.items"),
                 "layout": collect(parse_images(rid, "layout", room.get("layout"), f"{rid}.layout")),

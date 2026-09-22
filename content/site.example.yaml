@@ -26,6 +26,12 @@
 #        - 5: 這張是 livingroom-layout-05.jpg
 #        - 之後接續編號 06
 #
+#    不想寫圖說：冒號後面留空即可，頁面上只顯示編號。
+#    整個區塊都不寫圖說，直接寫成一行 auto，該房間這一類的照片會全部帶入：
+#      layout: auto
+#      detail: auto
+#    （auto 依檔名編號排序，不需要逐張維護，之後加照片也不用改 YAML）
+#
 #    build 時會檢查每個檔案是否存在，缺檔會報錯；
 #    資料夾裡有、但 YAML 沒提到的圖，會列成警告提醒你補圖說。
 #    圖說中若要用半形冒號，請用引號包起來："抽屜: 線材"
@@ -106,5 +112,7 @@ rooms:
     layout:
       # - 從玄關看向客廳全景    → livingroom-layout-01.jpg
       # - 電視牆與壁掛電視櫃    → livingroom-layout-02.jpg
+    # 不寫圖說的話，整個區塊可以改成一行：
+    #   detail: auto
     detail:
       # - 電視櫃抽屜：遙控器、線材    → livingroom-detail-01.jpg

@@ -40,7 +40,8 @@
       return '<figure class="shot">' +
                '<button type="button" class="frame" data-idx="' + idx + '">' +
                  '<img src="' + esc(src) + '" alt="' + esc(img.caption || img.file) + '" ' +
-                      'loading="lazy" decoding="async" data-file="' + esc(img.file) + '">' +
+                      'loading="lazy" decoding="async" data-file="' + esc(img.file) + '" ' +
+                      'style="aspect-ratio:' + (img.w || 4) + "/" + (img.h || 3) + '">' +
                "</button>" +
                '<figcaption><span class="no">' + fmt(img.no) + "</span>" +
                  esc(img.caption || "") + "</figcaption>" +
