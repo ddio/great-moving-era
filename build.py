@@ -140,60 +140,35 @@ def parse_images(owner_id, kind, raw, where):
     return out
 
 
-# ---------------------------------------------------------------- items
-VOL_RE = re.compile(
-    r"(\d+(?:\.\d+)?)\s*[×xX*]\s*(\d+(?:\.\d+)?)\s*[×xX*]\s*(\d+(?:\.\d+)?)"
-)
-
-
-# 常見標準容器，讓紙箱也能計入材積（車次評估用）
-SIZE_ALIASES = {
-    "標準箱": "60×40×40",
-    "標準紙箱": "60×40×40",
-    "標準吊衣箱": "50×50×100",
-    "吊衣箱": "50×50×100",
-}
-
-
-def volume_m3(size):
-    """'210×90×85cm' 或 '標準箱' -> 材積（立方公尺）；無法解析回 None。"""
-    size = (size or "").strip()
-    size = SIZE_ALIASES.get(size, size)
-    m = VOL_RE.search(size)
-    if not m:
-        return None
-    w, d, h = (float(g) for g in m.groups())
-    return round(w * d * h / 1_000_000, 4)
-
-
-def parse_items(raw, where):
+# ------------------------------------------------------------ 大型家具
+def parse_furniture(raw, where):
+    """一項可以是：
+         名稱
+         [名稱, 尺寸]
+         [名稱, 尺寸, 附註]
+         {name:, size:, note:}
+       尺寸與附註都可以不填。
+    """
     out = []
     for item in raw or []:
-        if isinstance(item, list):
-            name, qty, size, note = (list(item) + ["", "", "", ""])[:4]
+        if item is None:
+            continue
+        if isinstance(item, str):
+            name, size, note = item, "", ""
+        elif isinstance(item, list):
+            name, size, note = (list(item) + ["", "", ""])[:3]
         elif isinstance(item, dict):
             name = item.get("name", "")
-            qty = item.get("qty", 1)
             size = item.get("size", "")
             note = item.get("note", "")
         else:
-            err(f"{where}: 看不懂的品項 {item!r}（格式為 [名稱, 數量, 尺寸, 備註]）")
+            err(f"{where}: 看不懂的項目 {item!r}（格式為 名稱 或 [名稱, 尺寸, 附註]）")
             continue
-        try:
-            qty = int(qty)
-        except (TypeError, ValueError):
-            err(f"{where}: 品項「{name}」的數量 {qty!r} 不是數字")
-            qty = 0
-        size = text(size)
-        out.append(
-            {
-                "name": text(name),
-                "qty": qty,
-                "size": size,
-                "note": text(note),
-                "volume": volume_m3(size),
-            }
-        )
+        name = text(name).strip()
+        if not name:
+            err(f"{where}: 有一項沒有名稱")
+            continue
+        out.append({"name": name, "size": text(size).strip(), "note": text(note).strip()})
     return out
 
 
@@ -220,6 +195,7 @@ def main():
             "notes": parse_notes(ov.get("notes"), "overview.notes"),
             "images": collect(parse_images("overview", "plan", ov.get("images"), "overview.images")),
         },
+        "furniture": parse_furniture(raw.get("furniture"), "furniture"),
         "rooms": [],
     }
     site["logistics"]["notes"] = parse_notes(
@@ -240,13 +216,15 @@ def main():
             err(f"房間 id「{rid}」重複")
         seen_ids.add(rid)
 
+        if room.get("items"):
+            err(f"{rid}: items 已取消，請把大型家具移到最外層的 furniture:（不分房間）")
+
         site["rooms"].append(
             {
                 "id": rid,
                 "name": name,
                 "summary": text(room.get("summary")),
                 "notes": parse_notes(room.get("notes"), f"{rid}.notes"),
-                "items": parse_items(room.get("items"), f"{rid}.items"),
                 "layout": collect(parse_images(rid, "layout", room.get("layout"), f"{rid}.layout")),
                 "detail": collect(parse_images(rid, "detail", room.get("detail"), f"{rid}.detail")),
             }
@@ -280,10 +258,10 @@ def main():
         fh.write(f"window.MOVE_DATA = {body};\n")
 
     n_img = len(used)
-    n_item = sum(len(r["items"]) for r in site["rooms"])
+    n_item = len(site["furniture"])
     print(
         f"✓ data/data.js 已更新："
-        f"{len(site['rooms'])} 個房間、{n_img} 張圖片、{n_item} 項物品"
+        f"{len(site['rooms'])} 個房間、{n_img} 張圖片、{n_item} 件大型家具"
         f"{f'（{len(warnings)} 個警告）' if warnings else ''}"
     )
     return 0

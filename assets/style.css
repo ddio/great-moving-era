@@ -99,18 +99,11 @@ ul.notes ul li { color: var(--ink-soft); font-size: 0.94rem; margin-bottom: 3px;
 .logi-date { font-size: 0.9rem; margin-bottom: 14px; }
 .logi-date strong { color: var(--accent); }
 
-/* ===== 彙總 ===== */
-.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 20px; }
-.stat { border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; }
-.stat .n { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.02em; }
-.stat .n small { font-size: 0.75rem; font-weight: 500; color: var(--ink-mute); margin-left: 2px; }
-.stat .k { font-size: 0.78rem; color: var(--ink-mute); }
-
+/* ===== 表格 ===== */
 table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
 th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
 th { color: var(--ink-mute); font-weight: 600; font-size: 0.8rem; border-bottom-color: var(--line); white-space: nowrap; }
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
-tr.total td { border-top: 1px solid var(--line); border-bottom: 0; font-weight: 600; }
 td .note { color: var(--warn); }
 
 /* ===== 圖片 ===== */
@@ -197,9 +190,6 @@ details.detail-block > summary:hover { color: var(--accent); }
 
   .logi-grid { gap: 10pt; break-inside: avoid; }
   .logi-card { border: 1px solid #bbb; padding: 8pt 10pt; }
-  .stats { gap: 6pt; break-inside: avoid; }
-  .stat { border: 1px solid #bbb; padding: 6pt 8pt; }
-  .stat .n { font-size: 13pt; }
   table { break-inside: auto; font-size: 9pt; }
   tr { break-inside: avoid; }
   thead { display: table-header-group; }

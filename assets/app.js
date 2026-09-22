@@ -16,7 +16,6 @@
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
     });
   }
-  function isBox(name) { return /箱/.test(name); }
   function fmt(n, d) { return Number(n).toFixed(d == null ? 0 : d); }
 
   /* ------------------------------------------------------ 說明 bullets */
@@ -69,63 +68,28 @@
       notesHTML(L.notes) + "</section>";
   }
 
-  /* ---------------------------------------------------------- 彙總 */
-  function tally() {
-    var t = { rooms: [], pieces: 0, boxes: 0, lines: 0, volume: 0, unsized: 0 };
-    (D.rooms || []).forEach(function (r) {
-      var row = { name: r.name, id: r.id, pieces: 0, boxes: 0, volume: 0, unsized: 0, summary: r.summary };
-      (r.items || []).forEach(function (it) {
-        t.lines++;
-        if (isBox(it.name)) row.boxes += it.qty; else row.pieces += it.qty;
-        if (it.volume) row.volume += it.volume * it.qty; else row.unsized += it.qty;
-      });
-      t.pieces += row.pieces; t.boxes += row.boxes;
-      t.volume += row.volume; t.unsized += row.unsized;
-      t.rooms.push(row);
-    });
-    return t;
-  }
-
-  function summaryHTML(t) {
-    var stats = [
-      [t.rooms.length, "個", "房間區段"],
-      [t.pieces, "件", "家具與家電"],
-      [t.boxes, "箱", "紙箱（預估）"],
-      [fmt(t.volume, 1), "m³", "可估材積"],
-      [GALLERY.length, "張", "現場照片"]
-    ];
-    var rows = t.rooms.map(function (r) {
-      return "<tr><td><a href=\"#room-" + esc(r.id) + "\">" + esc(r.name) + "</a></td>" +
-             '<td class="num">' + (r.pieces || "–") + "</td>" +
-             '<td class="num">' + (r.boxes || "–") + "</td>" +
-             '<td class="num">' + (r.volume ? fmt(r.volume, 2) : "–") + "</td>" +
-             "<td>" + esc(r.summary || "") + "</td></tr>";
+  /* ------------------------------------------------------ 大型家具 */
+  function furnitureHTML() {
+    var list = D.furniture || [];
+    if (!list.length) return "";
+    var hasSize = list.some(function (f) { return f.size; });
+    var hasNote = list.some(function (f) { return f.note; });
+    var rows = list.map(function (f) {
+      return "<tr><td>" + esc(f.name) + "</td>" +
+             (hasSize ? "<td>" + esc(f.size) + "</td>" : "") +
+             (hasNote ? '<td class="note">' + esc(f.note) + "</td>" : "") + "</tr>";
     }).join("");
-    return '<section id="summary"><h2>全屋彙總<span class="tag">自動統計</span></h2>' +
-      '<p class="sec-summary">數量由各房間物品清單自動加總；材積依標示的長寬高計算，' +
-      "「標準箱」以 60×40×40 cm、「標準吊衣箱」以 50×50×100 cm 估算" +
-      (t.unsized ? "，另有 " + t.unsized + " 件未標尺寸、未計入材積" : "") + "。</p>" +
-      '<div class="stats">' + stats.map(function (s) {
-        return '<div class="stat"><div class="n">' + esc(s[0]) + "<small>" + esc(s[1]) +
-               '</small></div><div class="k">' + esc(s[2]) + "</div></div>";
-      }).join("") + "</div>" +
-      "<table><thead><tr><th>房間</th><th class=\"num\">家具家電</th><th class=\"num\">紙箱</th>" +
-      '<th class="num">材積 m³</th><th>搬運重點</th></tr></thead><tbody>' + rows +
-      '<tr class="total"><td>合計</td><td class="num">' + t.pieces + '</td><td class="num">' + t.boxes +
-      '</td><td class="num">' + fmt(t.volume, 2) + "</td><td></td></tr></tbody></table></section>";
+    return '<section id="furniture"><h2>大型家具與需特別留意的物品' +
+      '<span class="tag">' + list.length + " 件</span></h2>" +
+      '<p class="sec-summary">以下為需要搬運的大型或特殊物品；' +
+      "紙箱數量與細項請由現場照片評估。</p>" +
+      "<table><thead><tr><th>品項</th>" +
+      (hasSize ? "<th>尺寸</th>" : "") +
+      (hasNote ? "<th>說明</th>" : "") +
+      "</tr></thead><tbody>" + rows + "</tbody></table></section>";
   }
 
   /* ------------------------------------------------------------ 房間 */
-  function itemsTable(items) {
-    if (!items || !items.length) return "";
-    return '<div class="sub-h">物品清單</div><table><thead><tr><th>品項</th>' +
-      '<th class="num">數量</th><th>尺寸</th><th>備註</th></tr></thead><tbody>' +
-      items.map(function (it) {
-        return "<tr><td>" + esc(it.name) + '</td><td class="num">' + it.qty + "</td><td>" +
-               esc(it.size) + '</td><td class="note">' + esc(it.note) + "</td></tr>";
-      }).join("") + "</tbody></table>";
-  }
-
   function roomHTML(r) {
     var detail = r.detail && r.detail.length
       ? '<details class="detail-block"' + (isDesktop ? " open" : "") + ">" +
@@ -139,7 +103,6 @@
       "</h2>" +
       (r.summary ? '<p class="sec-summary">' + esc(r.summary) + "</p>" : "") +
       notesHTML(r.notes) +
-      itemsTable(r.items) +
       (r.layout.length ? '<div class="sub-h">大格局</div>' + imagesHTML(r.layout, "room-" + r.id + "-layout") : "") +
       detail +
       "</section>";
@@ -162,18 +125,18 @@
       (D.overview.images.length ? '<div class="sub-h">平面圖</div>' +
         imagesHTML(D.overview.images, "overview") : "") + "</section>";
 
-    var t = tally();
-    // 彙總的照片張數要等 GALLERY 填完才準，所以先產房間與整體 HTML
     var body = ovHTML + (D.rooms || []).map(roomHTML).join("");
-    document.getElementById("app").innerHTML = summaryHTML(t) + body;
+    document.getElementById("app").innerHTML = furnitureHTML() + body;
 
     var nav = (D.rooms || []).map(function (r) {
       return '<a href="#room-' + esc(r.id) + '">' + esc(r.name) + "</a>";
     }).join("");
     document.getElementById("room-nav").innerHTML =
-      '<a href="#summary">彙總</a><a href="#logistics">搬運條件</a><a href="#overview">整體</a>' + nav;
+      '<a href="#logistics">搬運條件</a>' +
+      ((D.furniture || []).length ? '<a href="#furniture">大型家具</a>' : "") +
+      '<a href="#overview">整體</a>' + nav;
 
-    // 搬運條件插在彙總之前
+    // 搬運條件放在最前面
     document.getElementById("app").insertAdjacentHTML("afterbegin", logisticsHTML());
     updateDetailButton();
   }

@@ -79,6 +79,15 @@ def build(rooms, auto=False):
         out.append("    #（把平面圖命名為 overview-plan-01.jpg 放進 images/src/）")
     out.append("")
 
+    out.append("# 大型家具與需特別留意的物品（不分房間）")
+    out.append("#   寫法： 名稱  /  [名稱, 尺寸]  /  [名稱, 尺寸, 附註]")
+    out.append("#   紙箱與細項不用寫，讓搬家公司看照片評估")
+    out.append("furniture:")
+    out.append("  #- 三人座布沙發")
+    out.append("  #- [雙門冰箱, 70×70×180cm]")
+    out.append("  #- [四門衣櫃, 200×60×220cm, 可拆板]")
+    out.append("  #- [鋼琴, \"\", 需另計]")
+    out.append("")
     out.append("rooms:")
     for room in sorted(rooms):
         kinds = rooms[room]
@@ -88,7 +97,6 @@ def build(rooms, auto=False):
         out.append(f"    name: {room}")
         out.append("    summary:")
         out.append("    notes:\n      #- ")
-        out.append("    items:\n      #- [品項, 1, 100×50×80cm, 備註]")
         for kind in ("layout", "detail"):
             nums = kinds.get(kind, [])
             if not nums:
