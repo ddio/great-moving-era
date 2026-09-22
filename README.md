@@ -169,7 +169,8 @@ python3 tools/publish.py --dry-run                # 只產 dist/，不上傳
 `publish.py` 用白名單只複製這些到 `dist/`：
 
 ```
-index.html  assets/  data/data.js  images/full/  images/thumb/  robots.txt  CNAME
+index.html  assets/style.css  assets/app.js  assets/blur.css
+data/data.js  images/full/  images/thumb/  robots.txt  CNAME
 ```
 
 `robots.txt` 擋搜尋引擎，`index.html` 也有 `<meta name="robots" content="noindex">`。

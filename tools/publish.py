@@ -21,7 +21,8 @@ DIST = os.path.join(ROOT, "dist")
 DOMAIN_FILE = os.path.join(ROOT, ".surge-domain")
 
 # 白名單：沒列在這裡的東西不會被公開
-INCLUDE_FILES = ["index.html", "assets/style.css", "assets/app.js", "data/data.js"]
+INCLUDE_FILES = ["index.html", "assets/style.css", "assets/app.js",
+                 "assets/blur.css", "data/data.js"]
 INCLUDE_DIRS = ["images/full", "images/thumb"]
 
 ROBOTS = "User-agent: *\nDisallow: /\n"
