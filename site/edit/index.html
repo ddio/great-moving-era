@@ -78,7 +78,8 @@
   <div class="dlg-actions" id="dlg-actions"></div>
 </dialog>
 
-<input type="file" id="pick-photos" accept="image/*,.heic,.heif" multiple hidden>
+<!-- 只寫 image/*：加上副檔名會讓 Android 改開檔案管理器，不能從相簿多選 -->
+<input type="file" id="pick-photos" accept="image/*" multiple hidden>
 <input type="file" id="pick-zip" accept=".zip,application/zip" hidden>
 <input type="file" id="pick-folder" webkitdirectory hidden>
 

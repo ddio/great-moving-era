@@ -130,7 +130,9 @@ input[type=text]:focus, textarea:focus { border-color: var(--sea); outline: 2px 
 }
 .tile.add:hover { border-color: var(--sea); color: var(--sea); }
 .tile.add .plus { font-size: 1.6rem; line-height: 1; }
-.tile.add .hint { font-size: 0.75rem; }
+.tile.add .hint { font-size: 0.75rem; text-align: center; }
+.tile.add .multi-key { margin-top: 4px; color: var(--sea); }
+@media (pointer: coarse) { .tile.add .multi-key { display: none; } }
 .zone-status { font-size: 0.85rem; color: var(--sea); margin-top: 8px; }
 
 /* ---------- 新增房間 ---------- */

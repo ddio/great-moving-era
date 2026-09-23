@@ -122,6 +122,9 @@ function field(label, path, { hint = "", placeholder = "", type = "text", wide =
     (hint ? `<span class="hint">${esc(hint)}</span>` : "") + "</label>";
 }
 
+// 電腦的檔案視窗預設點一下只選一張，要提示按鍵；手機的相簿挑選器本來就能多選
+const MULTI_KEY = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent) ? "⌘ 或 Shift" : "Ctrl 或 Shift";
+
 const NOTES_HINT = "一行一點。行首空兩格，會變成上一點底下的子項目。";
 
 function notesField(label, path, placeholder) {
@@ -157,7 +160,8 @@ function zoneInner(listPath) {
       </div>
     </figure>`).join("");
   return tiles + `<button type="button" class="tile add" data-act="add-photos" data-list="${listPath}">
-      <span class="plus">＋</span><span>加照片</span><span class="hint">或把照片拖進來</span>
+      <span class="plus">＋</span><span>加照片</span><span class="hint">可以一次選很多張，<br>或直接把照片拖進來</span>
+      <span class="hint multi-key">按住 ${MULTI_KEY} 可多選</span>
     </button>`;
 }
 
