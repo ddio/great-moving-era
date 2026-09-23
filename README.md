@@ -1,7 +1,62 @@
-# 搬家估價說明網頁
+# 我想搬出去！
 
-給搬家公司線上估價用的單頁說明：搬運條件、全屋彙總、各房間文字說明與照片。
-純靜態、無框架，手機／桌機／紙本列印皆可用。
+> 想要我的家當嗎？全部都放在這裡了！
+
+給搬家公司線上估價用的單頁說明：搬運條件、大型家具、各房間文字說明與照片。
+搬家公司看了就能報價，不用一家一家約看屋。
+
+- 網站：<https://great-moving-era.ddio.io/>
+- 線上編輯器：<https://great-moving-era.ddio.io/edit/>，不用安裝任何東西，
+  資料只存在使用者自己的瀏覽器
+- 範例屋：<https://great-moving-era.ddio.io/demo/>
+
+這個 repo 有兩種用法：
+
+| | 誰用 | 怎麼用 |
+| --- | --- | --- |
+| **線上編輯器** | 一般人 | 開網頁、拖照片、下載 PDF 或網站檔 |
+| **命令列流程** | 會用終端機的人 | 編輯 YAML、跑 Python，見下方「命令列流程」 |
+
+兩者產出同一種網站：`index.html` + `assets/` + `data/data.js` + `images/`。
+編輯器下載的網站檔可以直接放上網路，也能再匯入編輯器；CLI 專案資料夾也能匯入編輯器。
+
+## 網站（GitHub Pages）
+
+```
+site/                  landing、分享教學、404、共用樣式
+site/edit/             線上編輯器（原生 ES modules，不需要 build）
+  js/app.js            表單、照片、自動儲存、預覽、下載
+  js/model.js          編輯器專案格式 <-> window.MOVE_DATA（與 build.py 產出相同）
+  js/images.js         照片處理：tools/images.py 的瀏覽器版
+  js/store.js          IndexedDB
+  js/zip.js            zip 讀寫（不靠套件）
+  js/io.js             下載網站檔、匯入 zip／資料夾／範例屋
+  js/pdf.js            PDF 產生
+  vendor/、fonts/      pdf-lib、fontkit、HarfBuzz、Noto Sans TC（見 vendor/README.md）
+demo/                  範例屋：YAML + 公有領域名畫（出處見 demo/CREDITS.md）
+tools/build_site.py    組出 _site/：site/ + viewer 本體（/viewer/）+ 範例屋（/demo/）
+.github/workflows/     推 main 就跑 build_site.py 並發佈
+```
+
+本機預覽：
+
+```bash
+python3 tools/build_site.py --serve     # http://127.0.0.1:8778/
+```
+
+- `index.html`、`assets/` 是網頁本體，CLI 與編輯器共用同一份；
+  編輯器預覽與下載網站檔時抓的是 `/viewer/` 底下的這份
+- 流量統計用 GoatCounter（great-moving-era.goatcounter.com），
+  只注入本站頁面；`/viewer/` 與使用者下載的網站不帶統計
+- 編輯器照片處理：canvas 重新編碼（清掉 EXIF／GPS）、依拍攝方向轉正、
+  長邊 3000／1000px；PNG 維持 PNG
+- 編輯器 PDF：pdf-lib 自己排版，縮圖 JPEG 原封不動嵌入。
+  字型要先用 HarfBuzz 裁過再嵌入，原因見 `site/edit/vendor/README.md`；
+  字型檔由 `tools/make_pdf_font.py` 產生
+
+---
+
+# 命令列流程
 
 ## 資料流
 
@@ -72,20 +127,18 @@ build 失敗時錯誤會直接蓋在畫面上，修好即自動消失；server �
 | 指定編號 | 寫成 `- 5: 圖說` → `<房間>-<類型>-05.jpg`，之後接續 06 |
 | 不寫圖說 | 冒號後面留空，頁面只顯示編號 |
 | 整區不寫圖說 | 整個區塊寫成一行 `layout: auto`，該類照片全部自動帶入 |
-| 物品 | `[名稱, 數量, 尺寸, 備註]`；尺寸寫 `長×寬×高cm` 會自動算材積 |
-| 標準容器 | 尺寸填「標準箱」(60×40×40)、「標準吊衣箱」(50×50×100) 也會計入材積 |
-| 紙箱歸類 | 品項名稱含「箱」字者，統計時與家具家電分開 |
+| 大型家具 | 最外層 `furniture:`，不分房間；一項寫 `名稱` 或 `[名稱, 尺寸, 附註]` |
 
 圖說中若要用半形冒號，請用引號包起來：`- "抽屜: 線材"`。
 
 ## 頁面功能
 
-- **縮圖／原圖切換**：預設縮圖（長邊 1000px）加快開啟；選擇會記在瀏覽器
-- **點圖放大**：一律載入原圖，可用 ← → 切換、Esc 關閉
-- **細節照片**：桌機預設展開、手機預設收合，可一鍵全展開／全收合
-- **列印／存 PDF**：按鈕會先載入所有照片才叫出列印，避免印出空白圖；
+- **縮圖**：頁面一律顯示縮圖（長邊 1000px）加快開啟
+- **點圖放大**：一律載入原圖，可用 ← → 或手機左右滑切換、Esc 關閉
+- **細節照片**：桌機預設展開、手機預設收合
+- **列印**：按鈕會先載入所有照片才叫出列印，避免印出空白圖；
   每個房間自動分頁，照片兩欄排列、不裁切
-- **全屋彙總**：件數、紙箱數、材積由各房間物品清單自動加總
+- **大型家具**：最外層 `furniture:` 列成一張表，紙箱與零碎物品讓搬家公司看照片評估
 
 ## 圖片處理
 
