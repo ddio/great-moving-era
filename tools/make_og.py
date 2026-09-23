@@ -55,7 +55,7 @@ def main():
     card = Image.new("RGBA", (dog.width + pad * 2, dog.height + pad + bottom), (255, 255, 255, 255))
     card.paste(dog, (pad, pad))
     cd = ImageDraw.Draw(card)
-    cd.text((pad + 4, dog.height + pad + 10), "狗不用搬", font=font(tmp, 30), fill=INK)
+    cd.text((pad + 4, dog.height + pad + 10), "狗狗就不用搬了", font=font(tmp, 30), fill=INK)
     card = card.rotate(-4, resample=Image.BICUBIC, expand=True)
 
     shadow = Image.new("RGBA", card.size, (0, 0, 0, 0))
