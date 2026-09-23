@@ -27,6 +27,18 @@ const README = `這個資料夾是一個完整的網站，也是你的備份檔�
 提醒：放上網路後，拿到網址的人都看得到全部內容。搬完家記得把網站刪掉。
 `;
 
+const escHtml = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+/** 標題平常由 JS 設定，但 LINE、Facebook 抓預覽時不執行 JS，所以寫死在 HTML。
+ *  刻意不放預覽圖：家裡的照片不該出現在聊天室的連結預覽上 */
+function withTitle(html, D) {
+  const title = escHtml(D.title || "搬家說明");
+  const desc = escHtml(D.subtitle || "搬家估價說明");
+  return html.replace(/<title>[^<]*<\/title>/,
+    `<title>${title}</title>\n<meta property="og:title" content="${title}">\n` +
+    `<meta property="og:description" content="${desc}">`);
+}
+
 /** 專案裡用到的照片 -> Map<id, 照片紀錄> */
 export async function loadImages(project) {
   const meta = new Map();
@@ -47,7 +59,10 @@ export async function buildSiteZip(project, onProgress) {
   for (const rel of VIEWER) {
     const res = await fetch("../viewer/" + rel);
     if (!res.ok) throw new Error(`下載網頁檔案失敗（${rel}），請確認網路連線`);
-    files.push({ path: `${ZIP_ROOT}/${rel}`, data: new Uint8Array(await res.arrayBuffer()) });
+    const data = rel === "index.html"
+      ? withTitle(await res.text(), D)
+      : new Uint8Array(await res.arrayBuffer());
+    files.push({ path: `${ZIP_ROOT}/${rel}`, data });
   }
   files.push({ path: `${ZIP_ROOT}/data/data.js`, data: dataJs(D) });
   files.push({ path: `${ZIP_ROOT}/robots.txt`, data: "User-agent: *\nDisallow: /\n" });

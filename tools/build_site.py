@@ -41,6 +41,21 @@ DEMO_BANNER = """
 """
 
 
+# 範例屋的標題與分享卡（viewer 的標題由 JS 設定，社群平台的爬蟲不會執行 JS）
+DEMO_HEAD = """<title>範例屋：考古學者的搬家說明｜我想搬出去！</title>
+<meta name="description" content="書很多、拓本很脆弱，其餘都好說。看看一份搬家公司看了就能報價的家當說明長什麼樣子。">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="我想搬出去！">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:url" content="https://great-moving-era.ddio.io/demo/">
+<meta property="og:title" content="範例屋：考古學者的搬家說明">
+<meta property="og:description" content="書很多、拓本很脆弱，其餘都好說。照片由梵谷、維梅爾代打。">
+<meta property="og:image" content="https://great-moving-era.ddio.io/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">"""
+
+
 def copy_viewer(dst):
     for rel in VIEWER_FILES:
         os.makedirs(os.path.dirname(os.path.join(dst, rel)), exist_ok=True)
@@ -64,6 +79,7 @@ def build_demo():
     with open(path, encoding="utf-8") as fh:
         html = fh.read()
     html = html.replace('<meta name="robots" content="noindex">\n', "")
+    html = html.replace("<title>搬家估價說明</title>", DEMO_HEAD, 1)
     html = html.replace("</head>", GC_MARK + "\n</head>", 1)
     html = html.replace("<body>", "<body>" + DEMO_BANNER, 1)
     with open(path, "w", encoding="utf-8") as fh:
