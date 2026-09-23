@@ -19,7 +19,8 @@ const README = `這個資料夾是一個完整的網站，也是你的備份檔�
   詳細步驟：https://great-moving-era.ddio.io/publish/
 
 ■ 想在自己電腦上看
-  直接用瀏覽器打開 index.html。
+  先把 zip 解壓縮，再點兩下資料夾裡的 index.html，不需要網路。
+  （在 zip 裡面直接點開的話，照片會出不來）
 
 ■ 想繼續編輯
   到 https://great-moving-era.ddio.io/edit/ 按「匯入」，選這個 zip 檔或這個資料夾。

@@ -30,6 +30,7 @@
   .way .pick { display: inline-block; font-size: 0.8rem; color: var(--sea); margin-bottom: 6px; }
   .prose section { scroll-margin-top: 20px; }
   .prose ol li::marker { font-weight: 600; }
+  .prose section + section { margin-top: 8px; }
   .prose code { background: var(--bg-soft); padding: 1px 6px; border-radius: 4px; font-size: 0.92em; }
   @media (max-width: 720px) { .ways { grid-template-columns: 1fr; } }
 </style>
@@ -71,6 +72,17 @@
       <p>可以直接拖 zip 檔，不用解壓縮。</p>
     </a>
   </div>
+
+  <section id="local">
+    <h2>先在自己電腦上看看</h2>
+    <p>下載的網站檔不用放上網路也能看：</p>
+    <ol>
+      <li>在<a href="../edit/">編輯頁</a>按「更多 → 下載網站檔（兼備份）」。</li>
+      <li><strong>先解壓縮</strong>，會得到一個 <code>moving-site</code> 資料夾。Windows 可以直接點進 zip 裡面，但在那裡打開的話照片會出不來。</li>
+      <li>點兩下資料夾裡的 <code>index.html</code>，就會用瀏覽器打開，和搬家公司看到的一模一樣，不需要網路。</li>
+    </ol>
+    <p>放上網路之前先這樣檢查一遍，也可以把整個資料夾用隨身碟帶著。</p>
+  </section>
 
   <section id="pdf">
     <h2>傳 PDF</h2>

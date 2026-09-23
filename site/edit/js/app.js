@@ -223,7 +223,7 @@ function doneSection() {
       </div>
       <div>
         <h3>下載網站檔</h3>
-        <p>想給一個網址，就把它放到免費的網頁空間，<a href="../publish/">步驟在這裡</a>。這個檔案也是你的備份，之後可以匯入繼續編輯。</p>
+        <p>解壓縮後，點兩下裡面的 <code>index.html</code> 就能在自己電腦上看，不用網路。想給一個網址，就把它放到免費的網頁空間，<a href="../publish/">步驟在這裡</a>。這個檔案也是你的備份，之後可以匯入繼續編輯。</p>
         <button type="button" class="btn" data-act="zip">下載網站檔（zip）</button>
       </div>
     </div>
