@@ -1,0 +1,209 @@
+/* 編輯器：沿用 site.css 的色票，版面安靜、以填寫為主 */
+body { background: var(--bg-soft); font-size: 16px; }
+
+/* ---------- 頂部 ---------- */
+.ed-top {
+  position: sticky; top: 0; z-index: 40;
+  display: flex; align-items: center; gap: 16px;
+  height: 58px; padding: 0 20px; background: var(--bg); border-bottom: 1px solid var(--line);
+}
+.save-status { color: var(--ink-mute); font-size: 0.85rem; }
+.ed-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.menu { position: relative; }
+.menu > summary { list-style: none; }
+.menu > summary::-webkit-details-marker { display: none; }
+.menu-list {
+  position: absolute; right: 0; top: calc(100% + 6px); min-width: 210px;
+  background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: 0 8px 24px rgba(35, 32, 27, 0.12); padding: 6px; display: flex; flex-direction: column;
+}
+.menu-list button {
+  font: inherit; font-size: 0.92rem; text-align: left; background: none; border: 0;
+  padding: 9px 12px; border-radius: 6px; cursor: pointer; color: var(--ink);
+}
+.menu-list button:hover { background: var(--bg-soft); }
+.menu-list hr { border: 0; border-top: 1px solid var(--line); margin: 6px 4px; width: auto; }
+.danger { color: var(--stamp) !important; }
+.btn-danger { background: var(--stamp); border-color: var(--stamp); color: #fff; }
+
+.privacy-bar {
+  background: var(--ink); color: #efe9df; font-size: 0.86rem; line-height: 1.55;
+  padding: 9px 20px;
+}
+
+/* ---------- 版面 ---------- */
+.ed-layout {
+  display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 28px;
+  max-width: 1180px; margin: 0 auto; padding: 24px 20px 120px;
+}
+.ed-nav {
+  position: sticky; top: 82px; align-self: start;
+  display: flex; flex-direction: column; font-size: 0.92rem;
+  max-height: calc(100vh - 100px); overflow-y: auto;
+}
+.ed-nav a {
+  display: flex; justify-content: space-between; gap: 8px;
+  padding: 6px 10px; border-radius: 6px; color: var(--ink-soft); text-decoration: none;
+}
+.ed-nav a:hover { background: var(--bg); color: var(--ink); }
+.ed-nav .count { color: var(--ink-mute); font-size: 0.8rem; font-variant-numeric: tabular-nums; }
+.nav-rooms { margin: 6px 0 6px 10px; padding-left: 8px; border-left: 2px solid var(--line); display: flex; flex-direction: column; }
+.nav-add { color: var(--sea) !important; }
+.nav-done { margin-top: 6px; font-weight: 600; color: var(--ink) !important; }
+
+.ed-main { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.card {
+  background: var(--bg); border: 1px solid var(--line); border-radius: 10px;
+  padding: 24px 26px 26px; scroll-margin-top: 78px;
+}
+.card h2 { font-size: 1.35rem; margin-bottom: 14px; }
+.card h3 { font-size: 1.05rem; margin: 20px 0 8px; }
+.sec-lede { color: var(--ink-soft); font-size: 0.92rem; margin: -6px 0 18px; max-width: 42em; }
+.empty { color: var(--ink-mute); font-size: 0.92rem; margin-bottom: 12px; }
+
+/* ---------- 欄位 ---------- */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 18px; }
+.field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.field.wide { grid-column: 1 / -1; }
+.field + .field { margin-top: 0; }
+.field-label { font-size: 0.85rem; color: var(--ink-soft); font-weight: 600; }
+.hint { font-size: 0.8rem; color: var(--ink-mute); line-height: 1.45; }
+input[type=text], textarea {
+  font: inherit; font-size: 0.95rem; color: var(--ink);
+  border: 1px solid #d8d1c5; border-radius: 6px; padding: 8px 10px; background: #fff; width: 100%;
+}
+textarea { resize: vertical; line-height: 1.6; min-height: 96px; }
+input[type=text]:focus, textarea:focus { border-color: var(--sea); outline: 2px solid var(--sea-soft); outline-offset: 0; }
+::placeholder { color: #b2aba0; }
+.card > .field, .card > .grid2 + .field { margin-top: 14px; }
+.room > .field { margin-top: 14px; }
+
+/* 搬運條件：兩地並排 */
+.places { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px; }
+.place { border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+.place-label input { font-family: var(--display); font-size: 1.1rem; border-color: transparent; padding-left: 0; color: var(--sea); }
+.place-label input:hover { border-color: var(--line); padding-left: 10px; }
+.place-label input:focus { padding-left: 10px; }
+
+/* ---------- 大型家具 ---------- */
+.furn { margin-bottom: 12px; }
+.furn-head, .furn-row { display: grid; grid-template-columns: 1.1fr 1fr 1.6fr 72px; gap: 8px; align-items: center; }
+.furn-head { font-size: 0.8rem; color: var(--ink-mute); font-weight: 600; margin-bottom: 6px; }
+.furn-row + .furn-row { margin-top: 8px; }
+.row-tools { display: inline-flex; gap: 4px; justify-content: flex-end; }
+.row-tools button, .tile-tools button {
+  font: inherit; font-size: 0.82rem; border: 1px solid var(--line); background: #fff;
+  border-radius: 5px; padding: 4px 8px; cursor: pointer; color: var(--ink-soft);
+}
+.row-tools button:hover:not([disabled]), .tile-tools button:hover:not([disabled]) { border-color: var(--ink-mute); color: var(--ink); }
+.row-tools button[disabled], .tile-tools button[disabled] { opacity: 0.35; cursor: default; }
+
+/* ---------- 房間 ---------- */
+.room-head { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
+.room-name {
+  flex: 1; font-family: var(--display) !important; font-size: 1.35rem !important;
+  border-color: transparent !important; padding-left: 0 !important;
+}
+.room-name:hover, .room-name:focus { border-color: var(--line) !important; padding-left: 10px !important; }
+
+/* ---------- 照片 ---------- */
+.zone-wrap { margin-top: 20px; }
+.zone-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin-bottom: 8px; }
+.zone {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 12px;
+  border: 2px dashed transparent; border-radius: 10px; padding: 2px; margin: -4px;
+}
+.zone.drop { border-color: var(--sea); background: var(--sea-soft); }
+.tile { margin: 0; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.tile-img { position: relative; aspect-ratio: 4 / 3; background: var(--bg-soft); border-radius: 6px; overflow: hidden; border: 1px solid var(--line); }
+.tile-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.tile-img .no {
+  position: absolute; left: 6px; top: 6px; background: rgba(35,32,27,0.78); color: #fff;
+  font-size: 0.75rem; border-radius: 4px; padding: 0 6px; font-variant-numeric: tabular-nums;
+}
+.caption { font-size: 0.85rem !important; padding: 6px 8px !important; }
+.tile-tools { display: flex; flex-wrap: wrap; gap: 4px; }
+.tile.add {
+  aspect-ratio: 4 / 3; align-items: center; justify-content: center; gap: 2px;
+  border: 1.5px dashed #cfc6b8; border-radius: 6px; background: #fff; cursor: pointer;
+  font: inherit; color: var(--ink-soft); padding: 8px;
+}
+.tile.add:hover { border-color: var(--sea); color: var(--sea); }
+.tile.add .plus { font-size: 1.6rem; line-height: 1; }
+.tile.add .hint { font-size: 0.75rem; }
+.zone-status { font-size: 0.85rem; color: var(--sea); margin-top: 8px; }
+
+/* ---------- 新增房間 ---------- */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chips button {
+  font: inherit; font-size: 0.92rem; border: 1px solid var(--line); background: var(--bg);
+  border-radius: 999px; padding: 6px 14px; cursor: pointer; color: var(--ink);
+}
+.chips button:hover { border-color: var(--sea); color: var(--sea); }
+
+/* ---------- 完成 ---------- */
+.done { border: 2px solid var(--ink); }
+.check { padding-left: 1.2em; margin: 0; }
+.check li { font-size: 0.93rem; margin-bottom: 4px; }
+.check li.warn { color: var(--stamp); }
+.check li.tip { color: var(--ink-soft); }
+.all-good { color: #2e6b3a; }
+.done-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 16px; }
+.done-grid p { color: var(--ink-soft); font-size: 0.92rem; margin-bottom: 12px; }
+
+/* ---------- 開始畫面 ---------- */
+body.starting .ed-layout, body.starting .ed-actions, body.starting .privacy-bar { display: none; }
+.start { max-width: 860px; margin: 0 auto; padding: 64px 20px 100px; }
+.start h1 { font-size: 2.2rem; }
+.start-lede { color: var(--ink-soft); margin: 12px 0 32px; max-width: 36em; }
+.start-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.start-card {
+  font: inherit; text-align: left; cursor: pointer; color: var(--ink);
+  background: var(--bg); border: 2px solid var(--line); border-radius: 10px; padding: 20px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.start-card:first-child { border-color: var(--ink); }
+.start-card:hover { border-color: var(--sea); }
+.start-card strong { font-family: var(--display); font-weight: 400; font-size: 1.2rem; }
+.start-card span { color: var(--ink-soft); font-size: 0.92rem; line-height: 1.6; }
+
+/* ---------- 預覽 ---------- */
+.preview { position: fixed; inset: 0; z-index: 80; background: var(--bg); display: flex; flex-direction: column; }
+.preview[hidden] { display: none; }
+.preview-bar {
+  display: flex; align-items: center; gap: 14px; padding: 10px 20px;
+  border-bottom: 1px solid var(--line); background: var(--bg-soft);
+}
+.preview-bar .btn { margin-left: auto; }
+.preview iframe { flex: 1; border: 0; width: 100%; }
+body.previewing { overflow: hidden; }
+
+/* ---------- 對話框 ---------- */
+.dlg {
+  border: 0; border-radius: 12px; padding: 24px; max-width: min(460px, calc(100vw - 32px));
+  box-shadow: 0 20px 60px rgba(35, 32, 27, 0.3);
+}
+.dlg::backdrop { background: rgba(35, 32, 27, 0.45); }
+.dlg-msg { white-space: pre-line; line-height: 1.7; }
+.dlg-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+.dlg-actions:empty { display: none; }
+
+/* ---------- 手機 ---------- */
+@media (max-width: 860px) {
+  .ed-top { padding: 0 12px; gap: 10px; }
+  .save-status { display: none; }
+  .ed-layout { grid-template-columns: 1fr; padding: 12px 12px 100px; gap: 12px; }
+  .ed-nav {
+    position: sticky; top: 58px; z-index: 30; flex-direction: row; overflow-x: auto;
+    background: var(--bg-soft); padding: 8px 0; margin: 0 -12px; padding-left: 12px;
+    max-height: none; scrollbar-width: none;
+  }
+  .ed-nav a { flex: 0 0 auto; white-space: nowrap; }
+  .nav-rooms { flex-direction: row; margin: 0; padding: 0; border: 0; }
+  .card { padding: 18px 16px 20px; scroll-margin-top: 120px; }
+  .grid2, .places, .done-grid, .start-options { grid-template-columns: 1fr; }
+  .furn-head { display: none; }
+  .furn-row { grid-template-columns: 1fr 1fr; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+  .furn-row input[data-path$=".note"] { grid-column: 1 / -1; }
+  .zone { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>整理我的家當｜我想搬出去！</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📦</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Huninn&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="stylesheet" href="editor.css">
+<!-- goatcounter -->
+</head>
+<body>
+
+<header class="ed-top">
+  <a class="brand" href="../">我想搬出去！</a>
+  <span class="save-status" id="save-status" aria-live="polite"></span>
+  <div class="ed-actions">
+    <button type="button" class="btn btn-small" data-act="preview">預覽</button>
+    <button type="button" class="btn btn-small btn-primary" data-act="pdf">下載 PDF</button>
+    <details class="menu">
+      <summary class="btn btn-small" aria-label="更多功能">更多</summary>
+      <div class="menu-list">
+        <button type="button" data-act="zip">下載網站檔（兼備份）</button>
+        <button type="button" data-act="import-zip">匯入網站檔（zip）</button>
+        <button type="button" data-act="import-folder">匯入資料夾</button>
+        <hr>
+        <button type="button" data-act="demo">改用範例屋</button>
+        <button type="button" data-act="reset" class="danger">清空重來</button>
+      </div>
+    </details>
+  </div>
+</header>
+
+<p class="privacy-bar">
+  你填的內容和照片只存在這台電腦的瀏覽器裡，不會上傳到任何伺服器。換電腦或清除瀏覽器資料前，記得「下載網站檔」當備份。
+</p>
+
+<div class="ed-layout">
+  <nav class="ed-nav" id="nav" aria-label="段落"></nav>
+  <main class="ed-main" id="form"></main>
+</div>
+
+<section class="start" id="start" hidden>
+  <h1>開始整理你的家當</h1>
+  <p class="start-lede">照片和內容只會存在這台電腦的瀏覽器裡。地址寫到路段、聯絡人寫「王小姐」就夠了，搬家公司真的接案時自然會再問你。</p>
+  <div class="start-options">
+    <button type="button" class="start-card" data-act="start-blank">
+      <strong>從空白開始</strong>
+      <span>自己一間一間加房間。</span>
+    </button>
+    <button type="button" class="start-card" data-act="demo">
+      <strong>從範例屋改起</strong>
+      <span>先載入考古學者的家，看看每一欄怎麼寫，再改成你的。</span>
+    </button>
+    <button type="button" class="start-card" data-act="import-zip">
+      <strong>匯入之前下載的網站檔</strong>
+      <span>在別台電腦做過？選那個 zip 檔繼續編輯。</span>
+    </button>
+  </div>
+</section>
+
+<div class="preview" id="preview" hidden>
+  <div class="preview-bar">
+    <strong>預覽</strong>
+    <span class="muted">搬家公司看到的就是這樣</span>
+    <button type="button" class="btn btn-small" data-act="close-preview">關閉預覽</button>
+  </div>
+  <iframe id="preview-frame" title="預覽"></iframe>
+</div>
+
+<dialog class="dlg" id="dlg">
+  <p class="dlg-msg" id="dlg-msg"></p>
+  <div class="dlg-actions" id="dlg-actions"></div>
+</dialog>
+
+<input type="file" id="pick-photos" accept="image/*,.heic,.heif" multiple hidden>
+<input type="file" id="pick-zip" accept=".zip,application/zip" hidden>
+<input type="file" id="pick-folder" webkitdirectory hidden>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
