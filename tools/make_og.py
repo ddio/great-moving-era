@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """社群分享圖：site/assets/og.png（1200×630）
 
-牛皮紙紙箱底、麥克筆主標，右下貼一張範例屋閱讀角的狗（Carl Larsson《閒適的角落》局部）。
+平面牛皮紙底色（與首頁 hero 相同）、麥克筆主標，右下放一張範例屋閱讀角的狗（Carl Larsson《閒適的角落》局部）。
 
     python3 tools/make_og.py
 """
@@ -18,9 +18,8 @@ DOG = os.path.join(ROOT, "demo", "images", "src", "reading-layout-01.jpg")
 FONT_URL = "https://fonts.gstatic.com/s/huninn/v8/OpNNnoINg9bQ4xkpjg.ttf"
 
 W, H = 1200, 630
-KRAFT = (201, 164, 122)
+KRAFT = (220, 195, 161)      # --kraft-light
 INK = (35, 32, 27)
-TAPE = (240, 232, 208, 225)
 
 
 def font(path, size):
@@ -34,9 +33,6 @@ def main():
 
     im = Image.new("RGB", (W, H), KRAFT)
     d = ImageDraw.Draw(im, "RGBA")
-    # 瓦楞紙細直紋
-    for x in range(0, W, 9):
-        d.rectangle((x, 0, x + 1, H), fill=(0, 0, 0, 8))
 
     # 主標：微微傾斜，像寫在紙箱上
     text = Image.new("RGBA", (W, 330), (0, 0, 0, 0))
@@ -68,11 +64,6 @@ def main():
     x, y = W - card.width - 56, H - card.height - 28
     im.paste(shadow, (x + 8, y + 12), shadow)
     im.paste(card, (x, y), card)
-
-    # 封箱膠帶貼住拍立得上緣
-    tape = Image.new("RGBA", (190, 44), TAPE)
-    tape = tape.rotate(8, resample=Image.BICUBIC, expand=True)
-    im.paste(tape, (x + card.width // 2 - 95, y - 18), tape)
 
     im.save(OUT, optimize=True)
     print("✓", os.path.relpath(OUT, ROOT), os.path.getsize(OUT) // 1024, "KB")
