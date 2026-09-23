@@ -133,13 +133,13 @@ export function toData(project, meta) {
   };
 }
 
-/** MOVE_DATA -> 專案。回傳 { project, wanted: [{ id, file }] } 讓呼叫端去載入照片 */
+/** MOVE_DATA -> 專案。回傳 { project, wanted: [{ id, file, w, h }] } 讓呼叫端去載入照片 */
 export function fromData(D) {
   const p = emptyProject();
   const wanted = [];
   const imgs = (list) => (list || []).map((img) => {
     const id = uid("img");
-    wanted.push({ id, file: img.file });
+    wanted.push({ id, file: img.file, w: img.w, h: img.h });
     return { id, caption: img.caption || "" };
   });
   const s = (v) => (v == null ? "" : String(v));

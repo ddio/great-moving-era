@@ -447,7 +447,7 @@ async function replaceWith(label, fn) {
   try {
     for (const u of thumbURL.values()) URL.revokeObjectURL(u);
     thumbURL.clear();
-    const { project, warnings } = await fn((i, n) => pg.set(`${label}：照片 ${i}/${n}`));
+    const { project, warnings } = await fn((i, n) => pg.set(`${label}：照片 ${i}/${n}`), pg.set);
     P = project;
     pg.done();
     showEditor();
@@ -505,7 +505,10 @@ const actions = {
     showEditor();
     track("start-blank", "從空白開始");
   },
-  demo() { replaceWith("載入範例屋", importDemo).then(() => track("start-demo", "載入範例屋")); },
+  demo() {
+    replaceWith("載入範例屋", (cb, say) => importDemo(cb, (i, n) => say(`下載範例照片 ${i}/${n}…`)))
+      .then(() => track("start-demo", "載入範例屋"));
+  },
   "import-zip"() { $("#pick-zip").click(); },
   "import-folder"() { $("#pick-folder").click(); },
   preview: openPreview,

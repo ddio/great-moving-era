@@ -117,6 +117,8 @@ async function importEntries(entries, onProgress) {
       const t = await makeThumb(main, ext);
       thumb = t.thumb;
       dim = { w: t.w, h: t.h };
+    } else if (w.w && w.h && full) {
+      dim = { w: w.w, h: w.h };           // data.js 已經記了長寬，不用再解碼大圖（手機上很慢）
     } else {
       dim = await dimensions(main);
     }
@@ -146,7 +148,9 @@ export async function importFolder(fileList, onProgress) {
   return importEntries(entries, onProgress);
 }
 
-export async function importDemo(onProgress) {
+/** 範例屋只是讓人看每一欄怎麼寫，不需要大圖：只下載縮圖並拿來當大圖用，
+ *  同時抓 6 張。手機上從 7MB、依序下載，變成 1.6MB。 */
+export async function importDemo(onProgress, onDownload) {
   const base = "../demo/";
   const res = await fetch(base + "data/data.js");
   if (!res.ok) throw new Error("載入範例屋失敗，請確認網路連線");
@@ -154,11 +158,22 @@ export async function importDemo(onProgress) {
   const D = parseDataJs(text);
   const entries = new Map([["data/data.js", new Blob([text])]]);
   const files = [D.overview.images, ...D.rooms.flatMap((r) => [r.layout, r.detail])].flat();
-  for (const img of files) {
-    for (const size of ["full", "thumb"]) {
-      const r = await fetch(`${base}images/${size}/${encodeURIComponent(img.file)}`);
-      if (r.ok) entries.set(`images/${size}/${img.file}`, await r.blob());
+
+  let next = 0;
+  let done = 0;
+  const worker = async () => {
+    while (next < files.length) {
+      const img = files[next++];
+      const r = await fetch(`${base}images/thumb/${encodeURIComponent(img.file)}`);
+      if (r.ok) {
+        const blob = await r.blob();
+        entries.set(`images/full/${img.file}`, blob);
+        entries.set(`images/thumb/${img.file}`, blob);
+      }
+      done += 1;
+      if (onDownload) onDownload(done, files.length);
     }
-  }
+  };
+  await Promise.all(Array.from({ length: 6 }, worker));
   return importEntries(entries, onProgress);
 }
