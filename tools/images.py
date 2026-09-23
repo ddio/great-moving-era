@@ -21,7 +21,8 @@ import sys
 
 from PIL import Image, ImageCms, ImageOps
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# MOVE_ROOT：改用別的資料夾（例如 demo/），結構同專案根目錄
+ROOT = os.environ.get("MOVE_ROOT") or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC_DIR = os.path.join(ROOT, "images", "src")
 OUT = [
     (os.path.join(ROOT, "images", "full"), 3000, 75),

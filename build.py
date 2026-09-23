@@ -16,7 +16,8 @@ import sys
 import yaml
 from PIL import Image
 
-ROOT = os.path.dirname(os.path.abspath(__file__))
+# MOVE_ROOT：改用別的資料夾（例如 demo/），結構同專案根目錄
+ROOT = os.environ.get("MOVE_ROOT") or os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(ROOT, "content", "site.yaml")
 OUT = os.path.join(ROOT, "data", "data.js")
 FULL_DIR = os.path.join(ROOT, "images", "full")

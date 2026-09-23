@@ -10,6 +10,8 @@
   // 畫質完全看不出差別。點開燈箱才會載入 images/full。
   var GALLERY = [];          // 所有圖片的平面清單，燈箱用
   var isDesktop = window.matchMedia("(min-width: 721px)").matches;
+  // 線上編輯器預覽時，照片在瀏覽器裡而不是 images/ 底下，由它換掉這個函式
+  var imgURL = window.MOVE_IMG_URL || function (size, file) { return "images/" + size + "/" + file; };
 
   /* ---------------------------------------------------------- 小工具 */
   function esc(s) {
@@ -36,7 +38,7 @@
     return "<div class=\"img-grid\">" + images.map(function (img) {
       var idx = GALLERY.length;
       GALLERY.push({ file: img.file, caption: img.caption, group: group, no: img.no });
-      var src = "images/thumb/" + img.file;
+      var src = imgURL("thumb", img.file);
       var ar = (img.w && img.h) ? (img.w / img.h).toFixed(4) : "1.333";
       return '<figure class="shot" style="--ar:' + ar + '">' +
                '<button type="button" class="frame" data-idx="' + idx + '">' +
@@ -187,7 +189,7 @@
   function openLB(i) {
     lbIdx = i;
     var g = GALLERY[i], sib = siblings(i);
-    lbImg.src = "images/full/" + g.file;
+    lbImg.src = imgURL("full", g.file);
     lbImg.alt = g.caption || g.file;
     lbCap.textContent = g.caption || "";
     lbCount.textContent = (sib.indexOf(i) + 1) + " / " + sib.length;
