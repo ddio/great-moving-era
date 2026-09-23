@@ -1,4 +1,4 @@
-/* landing：hero 是一個紙箱面，麥克筆寫標題、斜貼一條封箱膠帶。
+/* landing：hero 是一片牛皮紙色，麥克筆寫標題。
    其他區塊保持安靜，只有「內容物」標籤再用一次紙箱元素 */
 
 main > section { padding: 72px 0; }
@@ -8,11 +8,7 @@ main h2 { font-size: 1.9rem; }
 
 /* ---------- hero：紙箱 ---------- */
 .hero {
-  position: relative; overflow: hidden;
-  background-color: var(--kraft);
-  /* 瓦楞紙的細直紋，淡到幾乎看不見 */
-  background-image: repeating-linear-gradient(90deg,
-    rgba(0,0,0,0.028) 0 2px, transparent 2px 9px);
+  background: var(--kraft-light);
   padding: 96px 0 84px;
 }
 .hero h1 {
@@ -26,14 +22,6 @@ main h2 { font-size: 1.9rem; }
 .hero .btn:not(.btn-primary) { background: transparent; }
 .hero .btn:not(.btn-primary):hover { background: rgba(255,255,255,0.35); }
 .hero-note { margin-top: 16px; font-size: 0.92rem; color: #4a4133; }
-.tape {
-  position: absolute; top: 34px; right: -60px; width: 380px; height: 58px;
-  background: var(--tape); transform: rotate(28deg);
-  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
-  /* 撕開的鋸齒邊 */
-  -webkit-mask: linear-gradient(90deg, transparent 0 4px, #000 4px calc(100% - 4px), transparent calc(100% - 4px));
-          mask: linear-gradient(90deg, transparent 0 4px, #000 4px calc(100% - 4px), transparent calc(100% - 4px));
-}
 
 /* ---------- 電話裡的對話 ---------- */
 .call { background: var(--bg); }
@@ -127,7 +115,6 @@ main h2 { font-size: 1.9rem; }
   .steps ol { grid-template-columns: 1fr; gap: 24px; }
   .gallery { grid-template-columns: repeat(2, 1fr); }
   .hero { padding: 72px 0 60px; }
-  .tape { width: 220px; height: 42px; top: 18px; right: -50px; }
   .say { max-width: 92%; }
 }
 @media (prefers-reduced-motion: no-preference) {
