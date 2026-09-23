@@ -211,7 +211,7 @@
       btn.textContent = "載入照片 " + done + "/" + total;
     }).then(function () {
       btn.disabled = false;
-      btn.textContent = "列印 / 存 PDF";
+      btn.textContent = "列印";
       window.print();
     });
   }
