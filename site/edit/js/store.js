@@ -67,7 +67,20 @@ export async function destroy() {
   });
 }
 
-/** 請瀏覽器不要在空間吃緊時自動清掉資料 */
+/** 「永久保存」的狀態：granted | denied | prompt | unsupported
+ *  沒有這個授權資料照樣存得進去，只是硬碟很滿時瀏覽器可能會清掉 */
+export async function persistState() {
+  try {
+    if (!navigator.storage || !navigator.storage.persist) return "unsupported";
+    if (await navigator.storage.persisted()) return "granted";
+    if (navigator.permissions) {
+      return (await navigator.permissions.query({ name: "persistent-storage" })).state;
+    }
+  } catch (e) { /* 查不到就當成還沒問過 */ }
+  return "prompt";
+}
+
+/** 請瀏覽器不要在空間吃緊時自動清掉資料（Firefox 會跳出詢問，其他瀏覽器自行決定） */
 export async function askPersist() {
   try {
     if (navigator.storage && navigator.storage.persist) return await navigator.storage.persist();

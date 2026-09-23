@@ -663,16 +663,44 @@ function showStart() {
   statusEl.textContent = "";
 }
 
+/* ------------------------------------------------------ 永久保存 */
+// 只有 Firefox 會為了 navigator.storage.persist() 跳出授權視窗，
+// 突然跳出來使用者不知道為什麼，所以先用我們自己的話說明，按了確認才去要。
+// 拒絕也能繼續用：資料照樣存得進去，只是硬碟很滿時可能被清掉，改在頂端提醒備份。
+const ASKS_USER = /Firefox\//.test(navigator.userAgent);
+let persistChecked = false;
+
+function showPersistWarning(show) {
+  $("#persist-warning").hidden = !show;
+}
+
+async function ensurePersist() {
+  if (persistChecked) return;
+  persistChecked = true;
+  const state = await store.persistState();
+  if (state === "granted" || state === "unsupported") return;
+  if (state === "denied") { showPersistWarning(true); return; }
+  if (!ASKS_USER) { store.askPersist(); return; }   // 不會跳視窗，直接要
+
+  await ask(
+    "接下來瀏覽器會詢問：是否允許這個網站「在你的裝置上保存資料」。\n\n" +
+    "你的內容和照片只存在這台電腦的瀏覽器裡。允許之後，瀏覽器在硬碟空間不足時就不會自動清掉它們。\n\n" +
+    "建議按「允許」。不允許也能繼續使用，只是記得常常下載網站檔當備份。",
+    [{ label: "好，我知道了", value: true, primary: true }]);
+  const ok = await store.askPersist();
+  showPersistWarning(!ok && (await store.persistState()) === "denied");
+}
+
 function showEditor() {
   $("#start").hidden = true;
   $("#deleted").hidden = true;
   document.body.classList.remove("starting");
   renderForm();
   statusEl.textContent = "已存在這台電腦";
+  ensurePersist();
 }
 
 (async () => {
-  store.askPersist();
   try {
     P = await store.loadProject();
   } catch (e) {
