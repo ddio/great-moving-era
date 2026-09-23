@@ -1,0 +1,136 @@
+/* landing：hero 是一個紙箱面，麥克筆寫標題、斜貼一條封箱膠帶。
+   其他區塊保持安靜，只有「內容物」標籤再用一次紙箱元素 */
+
+main > section { padding: 72px 0; }
+main h2 { font-size: 1.9rem; }
+.sub { color: var(--ink-soft); margin-top: 12px; max-width: 34em; }
+.two { display: grid; grid-template-columns: 5fr 6fr; gap: 48px; align-items: start; }
+
+/* ---------- hero：紙箱 ---------- */
+.hero {
+  position: relative; overflow: hidden;
+  background-color: var(--kraft);
+  /* 瓦楞紙的細直紋，淡到幾乎看不見 */
+  background-image: repeating-linear-gradient(90deg,
+    rgba(0,0,0,0.028) 0 2px, transparent 2px 9px);
+  padding: 96px 0 84px;
+}
+.hero h1 {
+  font-size: clamp(2.3rem, 6.4vw, 4.6rem); line-height: 1.22;
+  letter-spacing: 0.01em; color: var(--ink);
+  transform: rotate(-1.2deg); transform-origin: left center;
+}
+.hero .lede { font-size: 1.15rem; margin-top: 28px; max-width: 30em; color: #2f2a22; }
+.hero .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+.hero .btn { border-color: var(--ink); }
+.hero .btn:not(.btn-primary) { background: transparent; }
+.hero .btn:not(.btn-primary):hover { background: rgba(255,255,255,0.35); }
+.hero-note { margin-top: 16px; font-size: 0.92rem; color: #4a4133; }
+.tape {
+  position: absolute; top: 34px; right: -60px; width: 380px; height: 58px;
+  background: var(--tape); transform: rotate(28deg);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+  /* 撕開的鋸齒邊 */
+  -webkit-mask: linear-gradient(90deg, transparent 0 4px, #000 4px calc(100% - 4px), transparent calc(100% - 4px));
+          mask: linear-gradient(90deg, transparent 0 4px, #000 4px calc(100% - 4px), transparent calc(100% - 4px));
+}
+
+/* ---------- 電話裡的對話 ---------- */
+.call { background: var(--bg); }
+.dialog { margin: 32px 0 28px; display: flex; flex-direction: column; gap: 12px; max-width: 560px; }
+.say {
+  position: relative; max-width: 80%; padding: 10px 16px 10px;
+  border-radius: 18px; font-size: 1.05rem;
+}
+.say .who { display: block; font-size: 0.78rem; color: var(--ink-mute); line-height: 1.4; }
+.say.them { align-self: flex-start; background: var(--bg-soft); border-bottom-left-radius: 4px; }
+.say.me { align-self: flex-end; background: var(--sea-soft); border-bottom-right-radius: 4px; }
+.say.me .who { text-align: right; }
+.pains { padding-left: 1.2em; color: var(--ink-soft); max-width: 36em; }
+.pains li + li { margin-top: 6px; }
+.turn { margin-top: 28px; font-family: var(--display); font-size: 1.35rem; line-height: 1.6; }
+
+/* ---------- 內容物標籤 ---------- */
+.contents { background: var(--bg-soft); }
+.label {
+  background: #fff; border: 2px solid var(--ink); border-radius: 4px;
+  padding: 0 22px 18px; box-shadow: 6px 6px 0 var(--kraft);
+}
+.label-head {
+  display: flex; justify-content: space-between; align-items: center;
+  border-bottom: 2px solid var(--ink); margin: 0 -22px 12px; padding: 10px 22px;
+  font-family: var(--display); font-size: 1.2rem;
+}
+.fragile {
+  color: var(--stamp); border: 2px solid var(--stamp); border-radius: 3px;
+  padding: 0 8px; font-size: 0.9rem; transform: rotate(-4deg);
+}
+.label ul { list-style: none; margin: 0; padding: 0; }
+.label li { padding: 8px 0 8px 32px; position: relative; border-bottom: 1px dashed var(--line); }
+.label li:last-child { border-bottom: 0; }
+.label li::before {
+  content: "✓"; position: absolute; left: 2px; top: 8px;
+  width: 20px; height: 20px; line-height: 18px; text-align: center; font-size: 0.8rem;
+  border: 1.5px solid var(--ink); border-radius: 2px;
+}
+.label strong { display: block; }
+
+/* ---------- 三步驟（真的有先後，所以編號） ---------- */
+.steps ol {
+  list-style: none; counter-reset: step; padding: 0; margin: 36px 0 0;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px;
+}
+.steps li { counter-increment: step; border-top: 3px solid var(--ink); padding-top: 16px; }
+.steps li::before {
+  content: counter(step); font-family: var(--display); font-size: 2.6rem; line-height: 1;
+  color: var(--kraft-deep);
+}
+.steps h3 { font-size: 1.3rem; margin: 10px 0 6px; }
+.steps p { color: var(--ink-soft); }
+
+/* ---------- 隱私 ---------- */
+.privacy { background: var(--ink); color: #f3efe7; }
+.privacy h2 { color: #fff; }
+.privacy p + p { margin-top: 14px; }
+.privacy strong { color: #fff; }
+
+/* ---------- 範例屋 ---------- */
+.gallery {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+  margin: 32px 0 28px; text-decoration: none; color: inherit;
+}
+.gallery figure { margin: 0; }
+.gallery img {
+  width: 100%; aspect-ratio: 4 / 5; object-fit: cover; display: block;
+  border-radius: 4px; background: var(--bg-soft);
+}
+.gallery figcaption { font-size: 0.9rem; color: var(--ink-soft); margin-top: 8px; }
+.gallery:hover img { filter: brightness(1.04); }
+
+/* ---------- FAQ ---------- */
+.faq details { border-bottom: 1px solid var(--line); }
+.faq details:first-of-type { margin-top: 24px; border-top: 1px solid var(--line); }
+.faq summary {
+  cursor: pointer; padding: 16px 28px 16px 0; font-size: 1.08rem; position: relative;
+  list-style: none;
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; position: absolute; right: 4px; top: 12px; font-size: 1.4rem; color: var(--ink-mute); }
+.faq details[open] summary::after { content: "−"; }
+.faq details p { color: var(--ink-soft); padding-bottom: 14px; }
+.faq details p + p { margin-top: -6px; }
+
+@media (max-width: 820px) {
+  main > section { padding: 56px 0; }
+  main h2 { font-size: 1.55rem; }
+  .two { grid-template-columns: 1fr; gap: 28px; }
+  .steps ol { grid-template-columns: 1fr; gap: 24px; }
+  .gallery { grid-template-columns: repeat(2, 1fr); }
+  .hero { padding: 72px 0 60px; }
+  .tape { width: 220px; height: 42px; top: 18px; right: -50px; }
+  .say { max-width: 92%; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hero h1 { animation: settle 0.6s ease-out both; }
+  @keyframes settle { from { transform: rotate(-3deg) translateY(8px); opacity: 0; } }
+}
