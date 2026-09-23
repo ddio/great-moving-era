@@ -29,7 +29,7 @@
         <button type="button" data-act="import-folder">匯入資料夾</button>
         <hr>
         <button type="button" data-act="demo">改用範例屋</button>
-        <button type="button" data-act="reset" class="danger">清空重來</button>
+        <button type="button" data-act="delete" class="danger">刪除這台電腦上的資料</button>
       </div>
     </details>
   </div>
@@ -45,6 +45,7 @@
 </div>
 
 <section class="start" id="start" hidden>
+  <p class="deleted" id="deleted" role="status" hidden>已刪除。這台電腦的瀏覽器裡已經沒有你的搬家資料了。</p>
   <h1>開始整理你的家當</h1>
   <p class="start-lede">照片和內容只會存在這台電腦的瀏覽器裡。地址寫到路段、聯絡人寫「王小姐」就夠了，搬家公司真的接案時自然會再問你。</p>
   <div class="start-options">

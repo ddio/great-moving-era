@@ -223,6 +223,11 @@ function doneSection() {
         <button type="button" class="btn" data-act="zip">下載網站檔（zip）</button>
       </div>
     </div>
+    <div class="after-move">
+      <h3>搬完家了？</h3>
+      <p>這些內容和照片存在這台電腦的瀏覽器裡，不用了可以刪掉。已經下載的檔案，以及放上網路的網站（<a href="../publish/#safety">怎麼刪</a>），要另外處理。</p>
+      <button type="button" class="btn btn-small danger-outline" data-act="delete">刪除這台電腦上的資料</button>
+    </div>
   </section>`;
 }
 
@@ -454,14 +459,23 @@ async function replaceWith(label, fn) {
   }
 }
 
-async function resetAll() {
-  const ok = await confirmBox("確定要清空所有內容和照片嗎？這個動作沒辦法復原。", "清空", true);
+async function deleteAll() {
+  const ok = await confirmBox(
+    "要刪除這台電腦上的所有內容和照片嗎？刪除後沒辦法復原，需要的話請先「下載網站檔」備份。\n\n" +
+    "已經下載的 PDF、網站檔，以及放上網路的網站，不會跟著刪除。",
+    "刪除", true);
   if (!ok) return;
-  await store.clearAll();
+  closePreview();
+  previewURLs.forEach(URL.revokeObjectURL);
+  previewURLs = [];
+  delete window.__PREVIEW;
   for (const u of thumbURL.values()) URL.revokeObjectURL(u);
   thumbURL.clear();
+  await store.destroy();
   P = null;
+  $("#deleted").hidden = false;
   showStart();
+  track("delete", "刪除資料");
 }
 
 /* ------------------------------------------------------------ 結構操作 */
@@ -494,7 +508,7 @@ const actions = {
   "close-preview": closePreview,
   pdf: doPdf,
   zip: doZip,
-  reset: resetAll,
+  delete: deleteAll,
 
   "add-photos"(el) { pickTarget = el.dataset.list; $("#pick-photos").click(); },
   "img-left"(el) { move(getAt(el.dataset.list), +el.dataset.i, -1); scheduleSave(); renderZone(el.dataset.list); },
@@ -624,6 +638,16 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && !$("#preview").hidden) closePreview();
 });
 
+// 另一個分頁刪除了資料
+window.addEventListener("store-deleted", () => {
+  clearTimeout(saveTimer);
+  P = null;
+  closePreview();
+  if (dlg.open) dlg.close();
+  $("#deleted").hidden = false;
+  showStart();
+});
+
 window.addEventListener("beforeunload", (e) => {
   if (busy) { e.preventDefault(); e.returnValue = ""; }
 });
@@ -637,6 +661,7 @@ function showStart() {
 
 function showEditor() {
   $("#start").hidden = true;
+  $("#deleted").hidden = true;
   document.body.classList.remove("starting");
   renderForm();
   statusEl.textContent = "已存在這台電腦";

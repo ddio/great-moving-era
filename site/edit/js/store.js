@@ -14,7 +14,17 @@ function open() {
       db.createObjectStore("kv");
       db.createObjectStore("images", { keyPath: "id" });
     };
-    req.onsuccess = () => res(req.result);
+    req.onsuccess = () => {
+      const db = req.result;
+      // 別的分頁要刪除資料庫時，讓出連線，否則刪除會卡住
+      // 並通知畫面：記憶體裡的內容也要丟掉，不然自動儲存會把資料寫回去
+      db.onversionchange = () => {
+        db.close();
+        dbp = null;
+        window.dispatchEvent(new Event("store-deleted"));
+      };
+      res(db);
+    };
     req.onerror = () => rej(req.error);
   });
   return dbp;
@@ -41,6 +51,20 @@ export const allImageIds = () => run("images", "readonly", (s) => s.getAllKeys()
 export async function clearAll() {
   await run("kv", "readwrite", (s) => s.clear());
   await run("images", "readwrite", (s) => s.clear());
+}
+
+/** 使用者要求刪除：整個資料庫刪掉，瀏覽器裡不留任何痕跡 */
+export async function destroy() {
+  if (dbp) {
+    (await dbp).close();
+    dbp = null;
+  }
+  await new Promise((res, rej) => {
+    const req = indexedDB.deleteDatabase(DB_NAME);
+    req.onsuccess = res;
+    req.onerror = () => rej(req.error);
+    req.onblocked = res;      // 其他分頁開著也照樣刪，那些分頁關掉後就會完成
+  });
 }
 
 /** 請瀏覽器不要在空間吃緊時自動清掉資料 */
