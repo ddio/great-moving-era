@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>怎麼分享給搬家公司｜我想搬出去！</title>
+<meta name="description" content="做好的家當說明怎麼交給搬家公司：直接傳 PDF，或免費放上網路變成一個網址。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📦</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Huninn&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  .ways { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 8px 0 12px; }
+  .way { border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; text-decoration: none; color: inherit; display: block; }
+  .way:hover { border-color: var(--ink); }
+  .way h2 { font-size: 1.2rem; margin: 0 0 6px; }
+  .way p { color: var(--ink-soft); font-size: 0.93rem; }
+  .way .pick { display: inline-block; font-size: 0.8rem; color: var(--sea); margin-bottom: 6px; }
+  .prose section { scroll-margin-top: 20px; }
+  .prose ol li::marker { font-weight: 600; }
+  .prose code { background: var(--bg-soft); padding: 1px 6px; border-radius: 4px; font-size: 0.92em; }
+  @media (max-width: 720px) { .ways { grid-template-columns: 1fr; } }
+</style>
+<!-- goatcounter -->
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="../">我想搬出去！</a>
+    <nav>
+      <a href="../demo/">範例</a>
+      <a href="./" aria-current="page">怎麼分享</a>
+      <a href="../edit/">開始製作</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap prose">
+  <div class="page-head">
+    <h1>怎麼分享給搬家公司</h1>
+    <p>做好之後有三種給法。不確定選哪個，就用第一個：大部分搬家公司都習慣收 PDF。</p>
+  </div>
+
+  <div class="ways">
+    <a class="way" href="#pdf">
+      <span class="pick">最簡單</span>
+      <h2>傳 PDF</h2>
+      <p>下載 PDF，用 LINE 或 Email 傳過去。不用註冊任何東西。</p>
+    </a>
+    <a class="way" href="#netlify">
+      <span class="pick">想要一個網址</span>
+      <h2>Netlify Drop</h2>
+      <p>把資料夾拖進網頁就上線。要保留網址得註冊免費帳號。</p>
+    </a>
+    <a class="way" href="#cloudflare">
+      <span class="pick">已經有 Cloudflare 帳號</span>
+      <h2>Cloudflare Pages</h2>
+      <p>可以直接拖 zip 檔，不用解壓縮。</p>
+    </a>
+  </div>
+
+  <section id="pdf">
+    <h2>傳 PDF</h2>
+    <ol>
+      <li>在<a href="../edit/">編輯頁</a>右上角按「下載 PDF」。第一次會先下載中文字型（約 6MB），之後就不用。</li>
+      <li>用 LINE、Email 或任何通訊軟體傳給搬家公司。</li>
+    </ol>
+    <p>PDF 裡的照片是縮圖，幾十張照片通常 5MB 左右，Email 附件也放得下。想看大圖的搬家公司，可以另外給網址版。</p>
+    <p class="callout info">不要用瀏覽器的「列印 → 另存 PDF」：只要縮放不是 100%，照片會被轉成超大的點陣圖，同樣的內容可能從 5MB 變成幾百 MB。請用編輯頁的「下載 PDF」。</p>
+  </section>
+
+  <section id="netlify">
+    <h2>Netlify Drop：拖進去就有網址</h2>
+    <ol>
+      <li>在<a href="../edit/">編輯頁</a>按「更多 → 下載網站檔（兼備份）」，會得到一個 zip 檔。</li>
+      <li>解壓縮，會得到一個 <code>moving-site</code> 資料夾。</li>
+      <li>打開 <a href="https://app.netlify.com/drop">app.netlify.com/drop</a>，把整個 <code>moving-site</code> 資料夾拖進虛線框。Netlify Drop 只收資料夾，不收 zip。</li>
+      <li>幾秒後會出現一個網址，長得像 <code>https://random-name-123abc.netlify.app</code>，複製起來傳給搬家公司。</li>
+    </ol>
+    <p class="callout">沒登入就上傳的網站只是暫時的，要在一小時內按畫面上的提示註冊（可以用 Google 帳號）才會保留下來。建議先登入再拖。</p>
+    <h3>內容改了怎麼辦</h3>
+    <p>重新下載網站檔、解壓縮，到 Netlify 那個網站的 <strong>Deploys</strong> 頁面，把新資料夾拖到頁面下方的框裡。網址不會變。</p>
+  </section>
+
+  <section id="cloudflare">
+    <h2>Cloudflare Pages</h2>
+    <ol>
+      <li>在<a href="../edit/">編輯頁</a>按「更多 → 下載網站檔（兼備份）」。</li>
+      <li>登入 <a href="https://dash.cloudflare.com/">Cloudflare</a>，到 <strong>Workers &amp; Pages</strong>，選 <strong>Create application</strong>，再選 <strong>Drag and drop your files</strong>。</li>
+      <li>幫專案取個名字，名字會變成網址：<code>名字.pages.dev</code>。取一個別人猜不到的名字，不要用自己的姓名或地址。</li>
+      <li>把 zip 檔直接拖進去，按 Deploy。</li>
+    </ol>
+    <h3>內容改了怎麼辦</h3>
+    <p>到那個專案按 <strong>Create a new deployment</strong>，拖入新的 zip 檔。</p>
+  </section>
+
+  <section id="safety">
+    <h2>放上網路之前</h2>
+    <ul>
+      <li><strong>拿到網址的人都看得到全部內容</strong>，沒有密碼保護。網址只給搬家公司，不要貼在社群上。</li>
+      <li>網站已經設定成不讓搜尋引擎收錄，但網址本身還是唯一的門檻。</li>
+      <li>地址寫到路段、聯絡人寫「王小姐」就夠了，正式委託時搬家公司會再跟你要完整資料。</li>
+      <li><strong>搬完家記得把網站刪掉。</strong>Netlify 在網站的設定頁最下面、Cloudflare 在專案的 Settings 最下面，都有刪除按鈕。</li>
+    </ul>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <p><a href="../">回首頁</a>　<a href="../edit/">回到編輯頁</a></p>
+  </div>
+</footer>
+
+</body>
+</html>
