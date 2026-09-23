@@ -15,3 +15,11 @@ dist/
 __pycache__/
 *.pyc
 .DS_Store
+
+# ── 範例屋：原始圖（公有領域名畫）與 YAML 進版控，產出物不進 ──
+!demo/images/
+demo/images/full/
+demo/images/thumb/
+demo/data/
+# tools/build_site.py 的輸出
+_site/
