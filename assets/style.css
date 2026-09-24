@@ -130,15 +130,6 @@ figure.shot figcaption .no {
 /* 平面圖是拿來讀的，給大一點 */
 #overview .img-grid { --row: 320px; }
 
-details.detail-block { margin-top: 6px; }
-details.detail-block > summary {
-  cursor: pointer; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.06em;
-  color: var(--ink-mute); margin: 22px 0 10px; list-style: none;
-}
-details.detail-block > summary::-webkit-details-marker { display: none; }
-details.detail-block > summary::before { content: "▸ "; }
-details.detail-block[open] > summary::before { content: "▾ "; }
-details.detail-block > summary:hover { color: var(--accent); }
 
 /* ===== 頁尾 ===== */
 .site-foot { padding: 26px 20px 50px; color: var(--ink-soft); font-size: 0.9rem; }
@@ -202,9 +193,7 @@ details.detail-block > summary:hover { color: var(--accent); }
   section { border-bottom: 0; padding: 10pt 0 0; break-inside: auto; }
   section.page-break { break-before: page; }
   section > h2 { font-size: 12.5pt; border-bottom: 1px solid #999; padding-bottom: 4pt; margin-bottom: 8pt; }
-  .sub-h, details.detail-block > summary { margin: 12pt 0 6pt; color: #000; }
-  details.detail-block > summary::before,
-  details.detail-block[open] > summary::before { content: ""; }
+  .sub-h { margin: 12pt 0 6pt; color: #000; }
   #overview { break-before: page; }
 
   .logi-grid { gap: 10pt; break-inside: avoid; }

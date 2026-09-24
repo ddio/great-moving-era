@@ -9,7 +9,6 @@
   // 1000px 已是 285–374 DPI。餵 3000px 給印表機只會讓 PDF 肥好幾倍，
   // 畫質完全看不出差別。點開燈箱才會載入 images/full。
   var GALLERY = [];          // 所有圖片的平面清單，燈箱用
-  var isDesktop = window.matchMedia("(min-width: 721px)").matches;
   // 線上編輯器預覽時，照片在瀏覽器裡而不是 images/ 底下，由它換掉這個函式
   var imgURL = window.MOVE_IMG_URL || function (size, file) { return "images/" + size + "/" + file; };
 
@@ -95,9 +94,7 @@
   /* ------------------------------------------------------------ 房間 */
   function roomHTML(r) {
     var detail = r.detail && r.detail.length
-      ? '<details class="detail-block"' + (isDesktop ? " open" : "") + ">" +
-          "<summary>細節照片（" + r.detail.length + " 張）</summary>" +
-          imagesHTML(r.detail, "room-" + r.id + "-detail") + "</details>"
+      ? '<div class="sub-h">細節照片</div>' + imagesHTML(r.detail, "room-" + r.id + "-detail")
       : "";
     return '<section class="room page-break" id="room-' + esc(r.id) + '">' +
       "<h2>" + esc(r.name) +
@@ -168,14 +165,6 @@
     ]);
   }
 
-  /* ------------------------ 細節收合（列印與準備列印時全部展開）*/
-  function setDetails(open) {
-    Array.prototype.forEach.call(
-      document.querySelectorAll("details.detail-block"),
-      function (d) { d.open = open; }
-    );
-  }
-
   /* ---------------------------------------------------------- 燈箱 */
   var lb = document.getElementById("lightbox"), lbImg = document.getElementById("lb-img"),
       lbCap = document.getElementById("lb-caption"), lbCount = document.getElementById("lb-count"),
@@ -205,7 +194,6 @@
   /* ---------------------------------------------------------- 列印 */
   function preparePrint() {
     var btn = document.getElementById("print-btn");
-    setDetails(true);
     btn.disabled = true;
     loadAll(function (done, total) {
       btn.textContent = "載入照片 " + done + "/" + total;
@@ -256,7 +244,6 @@
     else if (e.key === "ArrowLeft") stepLB(-1);
     else if (e.key === "ArrowRight") stepLB(1);
   });
-  window.addEventListener("beforeprint", function () { setDetails(true); });
 
   render();
 
@@ -269,9 +256,8 @@
     document.head.appendChild(link);
   }
 
-  // ?print=1：展開細節、載入全部照片，給 tools/make_pdf.py 的無頭瀏覽器用
+  // ?print=1：載入全部照片，給 tools/make_pdf.py 的無頭瀏覽器用
   if (/[?&]print=1/.test(location.search)) {
-    setDetails(true);
     loadAll().then(function () { document.documentElement.dataset.printReady = "1"; });
   }
 })();
