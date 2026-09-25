@@ -10,6 +10,7 @@
   // 畫質完全看不出差別。點開燈箱才會載入 images/full。
   var GALLERY = [];          // 所有圖片的平面清單，燈箱用
   // 線上編輯器預覽時，照片在瀏覽器裡而不是 images/ 底下，由它換掉這個函式
+  var PEEK_SHOW = 2, PEEK_MIN = 4;   // 手機：4 張以上才收，先露出 2 張
   var imgURL = window.MOVE_IMG_URL || function (size, file) { return "images/" + size + "/" + file; };
 
   /* ---------------------------------------------------------- 小工具 */
@@ -32,9 +33,9 @@
   }
 
   /* ------------------------------------------------------------ 圖片 */
-  function imagesHTML(images, group) {
+  function imagesHTML(images, group, gridClass) {
     if (!images || !images.length) return "";
-    return "<div class=\"img-grid\">" + images.map(function (img) {
+    return "<div class=\"img-grid" + (gridClass ? " " + gridClass : "") + "\">" + images.map(function (img) {
       var idx = GALLERY.length;
       GALLERY.push({ file: img.file, caption: img.caption, group: group, no: img.no });
       var src = imgURL("thumb", img.file);
@@ -93,8 +94,14 @@
 
   /* ------------------------------------------------------------ 房間 */
   function roomHTML(r) {
+    // 細節照片多的時候，手機上只先露出前 2 張，其餘收在寫明張數的按鈕後面
+    //（CSS 只在窄螢幕生效；點開照片的燈箱仍可左右滑完整組）
+    var many = r.detail && r.detail.length >= PEEK_MIN;
     var detail = r.detail && r.detail.length
-      ? '<div class="sub-h">細節照片</div>' + imagesHTML(r.detail, "room-" + r.id + "-detail")
+      ? '<div class="sub-h">細節照片</div>' +
+        imagesHTML(r.detail, "room-" + r.id + "-detail", many ? "peek" : "") +
+        (many ? '<button type="button" class="btn more-btn">再看 ' + (r.detail.length - PEEK_SHOW) +
+                " 張細節照片</button>" : "")
       : "";
     return '<section class="room page-break" id="room-' + esc(r.id) + '">' +
       "<h2>" + esc(r.name) +
@@ -236,7 +243,12 @@
       swiped = false;
       return;
     }
-    if (e.target.closest("#print-btn")) { preparePrint(); }
+    if (e.target.closest("#print-btn")) { preparePrint(); return; }
+    var more = e.target.closest(".more-btn");
+    if (more) {
+      more.previousElementSibling.classList.remove("peek");
+      more.remove();
+    }
   });
   document.addEventListener("keydown", function (e) {
     if (lb.hidden) return;
