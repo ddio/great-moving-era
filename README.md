@@ -233,7 +233,10 @@ data/data.js  images/full/  images/thumb/  robots.txt  CNAME
 > 網址用隨機字串、不帶任何語意，也不要進版控（`.surge-domain` 已在 `.gitignore`）。
 > 搬完家之後記得 `npx surge teardown <網域>` 收掉。
 
-## 需求
+## 命令列流程的需求
 
-Python 3 + PyYAML + Pillow（本機皆已安裝），不需 npm 套件、不需 ImageMagick。
-產生 PDF 需要 Chrome，發佈需要 `npx surge`。
+- Python 3 + PyYAML + Pillow，不需 npm 套件、不需 ImageMagick
+- `tools/make_pdf.py`：Chrome 或 Chromium；`--compress` 另需 ghostscript（`gs`）
+- `tools/publish.py`：`npx surge`
+
+線上編輯器什麼都不用裝，下載 PDF 也不需要 Chrome。
